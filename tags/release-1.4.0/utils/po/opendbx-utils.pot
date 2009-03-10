@@ -1,0 +1,133 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: opendbx 1.4.0\n"
+"Report-Msgid-Bugs-To: norbert@linuxnetworks.de\n"
+"POT-Creation-Date: 2009-02-20 00:13+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: utils/commands.cpp:31
+msgid "Unknown command, use .help to list available commands"
+msgstr ""
+
+#: utils/commands.cpp:42
+msgid "Printing column names is now enabled"
+msgstr ""
+
+#: utils/commands.cpp:45
+msgid "Printing column names is now disabled"
+msgstr ""
+
+#: utils/commands.cpp:54
+msgid "Available commands:"
+msgstr ""
+
+#: utils/commands.cpp:55
+msgid "toggle printing column names for result sets"
+msgstr ""
+
+#: utils/commands.cpp:56 utils/config.cpp:118 utils/odbx-sql.cpp:194
+msgid "print this help"
+msgstr ""
+
+#: utils/commands.cpp:57
+msgid "exit program"
+msgstr ""
+
+#: utils/commands.cpp:64
+msgid "Good bye"
+msgstr ""
+
+#: utils/config.cpp:66
+msgid "Configuration file parameter is mandatory"
+msgstr ""
+
+#: utils/config.cpp:71
+msgid "Unable to initialize configuration file parser"
+msgstr ""
+
+#: utils/config.cpp:114
+msgid "Read and execute semicolon-terminated SQL statements from stdin"
+msgstr ""
+
+#: utils/config.cpp:116
+msgid "Usage: "
+msgstr ""
+
+#: utils/config.cpp:119 utils/odbx-sql.cpp:195
+msgid "name of the backend or path to the backend library"
+msgstr ""
+
+#: utils/config.cpp:120 utils/odbx-sql.cpp:196
+msgid "read configuration from file"
+msgstr ""
+
+#: utils/config.cpp:121 utils/odbx-sql.cpp:197
+msgid "database name or database file name"
+msgstr ""
+
+#: utils/config.cpp:122
+msgid "start/end delimiter for fields in output"
+msgstr ""
+
+#: utils/config.cpp:123 utils/odbx-sql.cpp:199
+msgid "host name, IP address or path to the database server"
+msgstr ""
+
+#: utils/config.cpp:124 utils/odbx-sql.cpp:200
+msgid "interactive mode"
+msgstr ""
+
+#: utils/config.cpp:125 utils/odbx-sql.cpp:201
+msgid "SQL keyword file for command completion"
+msgstr ""
+
+#: utils/config.cpp:126 utils/odbx-sql.cpp:202
+msgid "port name or number of the database server"
+msgstr ""
+
+#: utils/config.cpp:127 utils/odbx-sql.cpp:203
+msgid "separator between fields in output"
+msgstr ""
+
+#: utils/config.cpp:128 utils/odbx-sql.cpp:204
+msgid "user name for authentication"
+msgstr ""
+
+#: utils/config.cpp:129 utils/odbx-sql.cpp:205
+msgid "with prompt asking for the passphrase"
+msgstr ""
+
+#: utils/odbx-sql.cpp:128
+msgid "Interactive SQL shell, use .help to list available commands"
+msgstr ""
+
+#: utils/odbx-sql.cpp:169
+msgid "Warning: "
+msgstr ""
+
+#: utils/odbx-sql.cpp:198
+msgid "start/end field delimiter in output"
+msgstr ""
+
+#: utils/odbx-sql.cpp:218
+msgid "Password: "
+msgstr ""
+
+#: utils/odbx-sql.cpp:240
+msgid "Error: "
+msgstr ""
+
+#: utils/odbx-sql.cpp:245
+msgid "Error: Caught unknown exception"
+msgstr ""
