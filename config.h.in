@@ -226,9 +226,6 @@
    */
 #undef LT_OBJDIR
 
-/* Enabling MySQL MinGW workaroung */
-#undef MYSQL_MINGW_BUG
-
 /* Name of package */
 #undef PACKAGE
 
