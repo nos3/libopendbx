@@ -7,4 +7,4 @@
 version=2
 
 # Uncomment to examine a Webserver directory
-http://www.linuxnetworks.de/opendbx/download/libopendbx-(.*)\.tar\.gz
+http://www.linuxnetworks.de/opendbx/download/opendbx-(.*)\.tar\.gz
