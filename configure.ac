@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.57)
-AC_INIT([opendbx], [1.5.0], [http://bugs.linuxnetworks.de/])
+AC_INIT([opendbx], [1.4.2], [http://bugs.linuxnetworks.de/])
 AC_CONFIG_SRCDIR([config.h.in])
 AM_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE
@@ -105,9 +105,6 @@ AM_CONDITIONAL([ENABLEMAN], [test "x${db2man}" = xyes -a "x${doxygen}" = xyes])
 
 
 # Build options
-AC_ARG_ENABLE([versioned-symbols], AC_HELP_STRING([--enable-versioned-symbols], [Use versioned symbols]), [vsymldflags="${enableval}"], [vsymldflags=no])
-AM_CONDITIONAL([VSYMLDFLAGS], [test "x${vsymldflags}" = xyes])
-
 AC_ARG_ENABLE([singlelib], [AS_HELP_STRING([--enable-singlelib], [build single library including backends])], [singlelib="${enableval}"], [singlelib=no])
 AM_CONDITIONAL([SINGLELIB], [test "x${singlelib}" = xyes])
 
