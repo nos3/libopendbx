@@ -41,7 +41,6 @@ build:
 	./configure ${CONFFLAGS} \
 		--prefix=/usr \
 		--disable-rpath \
-		--enable-versioned-symbols \
 		--with-backends="${backends}"
 
 	$(MAKE)
