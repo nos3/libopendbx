@@ -82,14 +82,15 @@ binary-arch: build install
 	dh_installchangelogs -p${package} ChangeLog
 	dh_install -p${package} "${tmpdir}/usr/lib/libopendbx.so.*" "usr/lib/"
 	dh_install -p${package} "${tmpdir}/usr/lib/libopendbxplus.so.*" "usr/lib/"
-	dh_install -p${package} --autodest "${tmpdir}/usr/share/locale/*/*/opendbx1.mo"
+	dh_install -p${package} --autodest "${tmpdir}/usr/share/locale/*/*/${package}.mo"
+	dh_install -p${package} "${tmpdir}/usr/etc/ld.so.conf.d/${package}.conf" "etc/ld.so.conf.d/"
 
 	dh_installman -p${package}-dev ${tmpdir}/usr/share/man/man3/*
 	dh_install -p${package}-dev "${tmpdir}/usr/include/opendbx/api" "usr/include/opendbx"
 	dh_install -p${package}-dev "${tmpdir}/usr/include/opendbx/api.h" "usr/include/opendbx"
 	dh_install -p${package}-dev "${tmpdir}/usr/lib/libopendbx.so" "${tmpdir}/usr/lib/libopendbx.*a" "usr/lib/"
 	dh_install -p${package}-dev "${tmpdir}/usr/lib/libopendbxplus.so" "${tmpdir}/usr/lib/libopendbxplus.*a" "usr/lib/"
-	dh_install -p${package}-dev "opendbx.pc" "usr/lib/pkgconfig/"
+	dh_install -p${package}-dev "${package}.pc" "libopendbxplus1.pc" "usr/lib/pkgconfig/"
 	dh_link -p${package}-dev "usr/share/doc/${package}" "usr/share/doc/${package}-dev"
 	dh_link -p${package}-dev "usr/include/opendbx/api.h" "usr/include/odbx.h"
 
