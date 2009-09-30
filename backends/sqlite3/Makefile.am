@@ -4,8 +4,7 @@ if SINGLELIB
 noinst_LTLIBRARIES = libsqlite3backend.la
 libsqlite3backend_la_CPPFLAGS = -DODBX_SINGLELIB
 else
-opendbxlibdir = $(libdir)/opendbx
-opendbxlib_LTLIBRARIES = libsqlite3backend.la
+pkglib_LTLIBRARIES = libsqlite3backend.la
 libsqlite3backend_la_CPPFLAGS =
 libsqlite3backend_la_LDFLAGS = -no-undefined -module -version-info @APIVERSION@
 endif

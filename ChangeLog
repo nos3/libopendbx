@@ -1,10 +1,31 @@
-2009-08-18 Norbert Sendetzky <norbert@linuxnetworks.de>
+2009-09-30 Norbert Sendetzky <norbert@linuxnetworks.de>
 
-	* Feature: Added odbx_field_isnull() and Result::fieldIsNull() functions to check for NULL values
-	* Feature: Fully compatible with Debian standard version 3.8.2.0
-	* Feature: Added ability to version symbols with ./configure --enable-versioned-symbols
-	* Feature: Added configurable logging possibility for debug output
-	* Change: Moved library handling functions to header file and declared them static
+	* Change: Changed mysql_real_connect options so odbx_rows_affected() is in line with other backends
+	* Change: Don't set sql_mode in mysql backend if mode is an empty string (for MySQL < 4.1)
+	* Bugfix: Fixed segmentation fault in mysql backend in threaded environments
+	* Bugfix: Fixed mysql_real_connect options to keep options on reconnect
+	* Bugfix: Fixed uninitialized variables in sqlite3 backend which may lead to a segfault
+	* Bugfix: Cleanup connection in mysql backend if setting mode failed during odbx_bind()
+	* Bugfix: Fixed several problems in RPM spec file
+
+2009-09-02 Norbert Sendetzky <norbert@linuxnetworks.de>
+
+	* Bugfix: Fixed lost statements in sqlite3 backend if an error or a timeout occured
+	* Bugfix: Fixed building dynamic firebird and mysql backend libraries on Windows platforms
+	* Bugfix: Fixed pgsql backend support for timeouts in odbx_result() on Windows platforms
+	* Bugfix: Fixed UTF-8 encoding of data in oracle backend on Windows platforms
+	* Bugfix: Added workaround for RHEL and CentOS in spec file
+	* Bugfix: Fixed spec file for building on x86_64 platform
+	* Bugfix: Fixed used library for libopendbxplus
+	* Bugfix: Fixed odbc package in spec file
+
+2009-08-07 Norbert Sendetzky <norbert@linuxnetworks.de>
+
+	* Feature: Added MySQL MinGW workaround for easy compilation of MySQL backend on Windows plattforms
+	* Bugfix: Removed old config.{cpp,hpp} files from generating gettext files
+	* Bugfix: Use sqlite3_prepare_v2() for improved error management in sqlite3 backend
+	* Bugfix: Fixed singlelib builds for mysql and interbase on Win32
+	* Bugfix: Fixed warning in firebird_odbx_error()
 
 2009-06-02 Norbert Sendetzky <norbert@linuxnetworks.de>
 
@@ -16,7 +37,7 @@
 	* Bugfix: Fixed configure to build Oracle backend on Windows plattforms
 	* Bugfix: Fixed configure to build Sybase backend on Windows plattforms
 	* Bugfix: Correctly check for ODBC library on Windows plattforms
-	* Bugfix: Used uninitialized variable in Win32 DLL loader (thanks to Markus Fritsche)
+	* Bugfix: Used unitialized variable in Win32 DLL loader (thanks to Markus Fritsche)
 	* Bugfix: Rewritten Win32 DLL loader to prevent problem with SQLite (thanks to Mariano Martinez Peck)
 	* Bugfix: Fixed warning in firebird backend when using newer Firebird libraries
 	* Bugfix: Check for Interbase gds32 library if fbclient isn't found

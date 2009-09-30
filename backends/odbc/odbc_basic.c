@@ -38,7 +38,6 @@ struct odbx_basic_ops odbc_odbx_basic_ops = {
 	.column_count = odbc_odbx_column_count,
 	.column_name = odbc_odbx_column_name,
 	.column_type = odbc_odbx_column_type,
-	.field_isnull = odbc_odbx_field_isnull,
 	.field_length = odbc_odbx_field_length,
 	.field_value = odbc_odbx_field_value,
 };
@@ -53,8 +52,6 @@ struct odbx_basic_ops odbc_odbx_basic_ops = {
 
 static int odbc_odbx_init( odbx_t* handle, const char* host, const char* port )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "odbc_odbx_init() called" ); )
-
 	if( ( handle->generic = malloc( sizeof( struct odbcgen ) ) ) == NULL )
 	{
 		return -ODBX_ERR_NOMEM;
@@ -98,8 +95,6 @@ static int odbc_odbx_init( odbx_t* handle, const char* host, const char* port )
 
 static int odbc_odbx_bind( odbx_t* handle, const char* database, const char* who, const char* cred, int method )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "odbc_odbx_bind() called" ); )
-
 	if( handle->generic == NULL ) { return -ODBX_ERR_PARAM; }
 	if( method != ODBX_BIND_SIMPLE ) { return -ODBX_ERR_NOTSUP; }
 
@@ -154,8 +149,6 @@ static int odbc_odbx_bind( odbx_t* handle, const char* database, const char* who
 
 static int odbc_odbx_unbind( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "odbc_odbx_unbind() called" ); )
-
 	if( handle->generic == NULL ) { return -ODBX_ERR_PARAM; }
 
 	struct odbcgen* gen = (struct odbcgen*) handle->generic;
@@ -173,8 +166,6 @@ static int odbc_odbx_unbind( odbx_t* handle )
 
 static int odbc_odbx_finish( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "odbc_odbx_finish() called" ); )
-
 	if( handle->generic == NULL ) { return -ODBX_ERR_PARAM; }
 
 	struct odbcgen* gen = (struct odbcgen*) handle->generic;
@@ -203,8 +194,6 @@ static int odbc_odbx_finish( odbx_t* handle )
 
 static int odbc_odbx_get_option( odbx_t* handle, unsigned int option, void* value )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "odbc_odbx_get_option() called" ); )
-
 	switch( option )
 	{
 		case ODBX_OPT_API_VERSION:
@@ -231,8 +220,6 @@ static int odbc_odbx_get_option( odbx_t* handle, unsigned int option, void* valu
 
 static int odbc_odbx_set_option( odbx_t* handle, unsigned int option, void* value )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "odbc_odbx_set_option() called" ); )
-
 	switch( option )
 	{
 		case ODBX_OPT_API_VERSION:
@@ -266,8 +253,6 @@ static int odbc_odbx_set_option( odbx_t* handle, unsigned int option, void* valu
 
 static const char* odbc_odbx_error( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "odbc_odbx_error() called" ); )
-
 	SQLRETURN err;
 	SQLCHAR sqlstate[6];
 	SQLINTEGER nerror;
@@ -299,8 +284,6 @@ static const char* odbc_odbx_error( odbx_t* handle )
 
 static int odbc_odbx_error_type( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "odbc_odbx_error_type() called" ); )
-
 	struct odbcgen* gen = (struct odbcgen*) handle->generic;
 
 	switch( ((struct odbcgen*) handle->generic)->err )
@@ -377,8 +360,6 @@ static int odbc_odbx_error_type( odbx_t* handle )
 
 static int odbc_odbx_query( odbx_t* handle, const char* query, unsigned long length )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "odbc_odbx_query() called" ); )
-
 	struct odbcgen* gen = (struct odbcgen*) handle->generic;
 
 
@@ -443,8 +424,6 @@ static int odbc_odbx_query( odbx_t* handle, const char* query, unsigned long len
 
 static int odbc_odbx_result( odbx_t* handle, odbx_result_t** result, struct timeval* timeout, unsigned long chunk )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "odbc_odbx_result() called" ); )
-
 	struct odbcgen* gen = (struct odbcgen*) handle->generic;
 
 
@@ -571,8 +550,6 @@ static int odbc_odbx_result( odbx_t* handle, odbx_result_t** result, struct time
 
 static int odbc_odbx_result_finish( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "odbc_odbx_result_finish() called" ); )
-
 	struct odbcraux* raux = (struct odbcraux*) result->aux;
 
 	if( raux != NULL ) {
@@ -588,8 +565,6 @@ static int odbc_odbx_result_finish( odbx_result_t* result )
 
 static int odbc_odbx_row_fetch( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "odbc_odbx_row_fetch() called" ); )
-
 	struct odbcgen* gen = (struct odbcgen*) result->handle->generic;
 
 	if( gen == NULL ) { return -ODBX_ERR_PARAM; }
@@ -609,8 +584,6 @@ static int odbc_odbx_row_fetch( odbx_result_t* result )
 
 static uint64_t odbc_odbx_rows_affected( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "odbc_odbx_rows_affected() called" ); )
-
 	SQLLEN count;
 	struct odbcgen* gen = (struct odbcgen*) result->handle->generic;
 
@@ -631,17 +604,27 @@ static uint64_t odbc_odbx_rows_affected( odbx_result_t* result )
 
 static unsigned long odbc_odbx_column_count( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "odbc_odbx_column_count() called" ); )
-
 	return (unsigned long) ((struct odbcraux*) result->aux)->cols;
+
+	SQLSMALLINT cols;
+	struct odbcgen* gen = (struct odbcgen*) result->handle->generic;
+
+	if( gen != NULL )
+	{
+		 gen->err = SQLNumResultCols( gen->stmt, &cols );
+		if( SQL_SUCCEEDED( gen->err ) )
+		{
+			return (unsigned long) cols;
+		}
+	}
+
+	return 0;
 }
 
 
 
 static const char* odbc_odbx_column_name( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "odbc_odbx_column_name() called" ); )
-
 	SQLSMALLINT len;
 	struct odbcraux* raux = (struct odbcraux*) result->aux;
 	struct odbcgen* gen = (struct odbcgen*) result->handle->generic;
@@ -666,8 +649,6 @@ static const char* odbc_odbx_column_name( odbx_result_t* result, unsigned long p
 
 static int odbc_odbx_column_type( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "odbc_odbx_column_type() called" ); )
-
 	SQLLEN type;
 	struct odbcgen* gen = (struct odbcgen*) result->handle->generic;
 
@@ -724,48 +705,14 @@ static int odbc_odbx_column_type( odbx_result_t* result, unsigned long pos )
 
 
 
-static int odbc_odbx_field_isnull( odbx_result_t* result, unsigned long pos )
-{
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "odbc_odbx_field_isnull() called" ); )
-
-	struct odbcres* res = (struct odbcres*) result->generic;
-	struct odbcraux* raux = (struct odbcraux*) result->aux;
-
-	if( res == NULL || raux == NULL )
-	{
-		return -ODBX_ERR_HANDLE;
-	}
-
-	if( pos >= raux->cols )
-	{
-		return -ODBX_ERR_PARAM;
-	}
-
-	if( res[pos].ind == SQL_NULL_DATA )
-	{
-		return 1;
-	}
-
-	return 0;
-}
-
-
-
 static unsigned long odbc_odbx_field_length( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "odbc_odbx_field_length() called" ); )
-
 	struct odbcres* res = (struct odbcres*) result->generic;
 	struct odbcraux* raux = (struct odbcraux*) result->aux;
 
-	if( res != NULL && raux != NULL && pos < raux->cols )
+	if( res != NULL && raux != NULL && pos <= raux->cols )
 	{
-		// TODO: What about SQL_NO_TOTAL
-		// http://msdn.microsoft.com/en-us/library/ms713532(VS.85).aspx
-		if( res[pos].ind > 0 )
-		{
-			return (unsigned long) res[pos].ind;
-		}
+		return res[pos].ind;
 	}
 
 	return 0;
@@ -775,12 +722,10 @@ static unsigned long odbc_odbx_field_length( odbx_result_t* result, unsigned lon
 
 static const char* odbc_odbx_field_value( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "odbc_odbx_field_value() called" ); )
-
 	struct odbcres* res = (struct odbcres*) result->generic;
 	struct odbcraux* raux = (struct odbcraux*) result->aux;
 
-	if( res != NULL && raux != NULL && pos < raux->cols && res[pos].ind != SQL_NULL_DATA )
+	if( res != NULL && raux != NULL && pos <= raux->cols && res[pos].ind != SQL_NULL_DATA )
 	{
 		return res[pos].buffer;
 	}

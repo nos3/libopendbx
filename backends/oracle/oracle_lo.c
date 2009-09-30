@@ -8,13 +8,7 @@
 
 
 
-#include <stdlib.h>
-
-
-
 #ifdef HAVE_OCILOBWRITE2
-
-
 #define ORAXB8_DEFINED
 // Oracle 10.2.0 workaround, bug 4901517
 #ifndef oraub8
@@ -24,6 +18,7 @@ typedef unsigned long long oraub8;
 
 #include "oracle_lo.h"
 #include <ociap.h>
+#include <stdlib.h>
 
 
 

@@ -11,8 +11,6 @@ odbx_sql_CPPFLAGS = -DLOCALEDIR=\"$(localedir)\" -DKEYWORDFILE=\"$(pkgdatadir)/k
 odbx_sql_LDADD = ../lib/.libs/$(LIBPREFIX)opendbx$(LIBSUFFIX) ../lib/.libs/$(LIBPREFIX)opendbxplus$(LIBSUFFIX) -lreadline -lncurses
 
 EXTRA_DIST = keywords
-
-opendbxdatadir = $(datarootdir)/opendbx
-opendbxdata_DATA = keywords
+pkgdata_DATA = keywords
 
 endif

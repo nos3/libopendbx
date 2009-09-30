@@ -53,8 +53,6 @@ static const char* oracle_odbx_column_name( odbx_result_t* result, unsigned long
 
 static int oracle_odbx_column_type( odbx_result_t* result, unsigned long pos );
 
-static int oracle_odbx_field_isnull( odbx_result_t* result, unsigned long pos );
-
 static unsigned long oracle_odbx_field_length( odbx_result_t* result, unsigned long pos );
 
 static const char* oracle_odbx_field_value( odbx_result_t* result, unsigned long pos );

@@ -1,8 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.57)
-AC_INIT([libopendbx], [1.5.0pre], [http://bugs.linuxnetworks.de/])
+AC_PREREQ(2.64)
+AC_INIT([opendbx],[1.4.4],[http://bugs.linuxnetworks.de/])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
@@ -100,18 +100,8 @@ AM_CONDITIONAL([ENABLEMAN], [test "x${db2man}" = xyes -a "x${doxygen}" = xyes])
 
 
 # Build options
-AC_ARG_ENABLE([versioned-symbols], AC_HELP_STRING([--enable-versioned-symbols], [use versioned symbols]), [vsymldflags="${enableval}"], [vsymldflags=no])
-AM_CONDITIONAL([VSYMLDFLAGS], [test "x${vsymldflags}" = xyes])
-
 AC_ARG_ENABLE([singlelib], [AS_HELP_STRING([--enable-singlelib], [build single library including backends])], [singlelib="${enableval}"], [singlelib=no])
 AM_CONDITIONAL([SINGLELIB], [test "x${singlelib}" = xyes])
-
-AC_ARG_ENABLE([debug-log], [AS_HELP_STRING([--enable-debug-log], [enable debug logging])], [debuglog="${enableval}"], [debuglog=no])
-
-if test "x${debuglog}" = xyes; then
-	AC_DEFINE([ENABLE_DEBUGLOG], [1], [Enable debug logging])
-	AC_CHECK_FUNCS([localtime strftime time vfprintf])
-fi
 
 AC_ARG_ENABLE([test], [AS_HELP_STRING([--disable-test], [don't build OpenDBX test applications])], [test="${enableval}"], [test=yes])
 AM_CONDITIONAL([ENABLETEST], [test "x${test}" = xyes])
@@ -229,7 +219,7 @@ int main() { mysql_next_result( NULL ); return 0; }
 				[
 					AC_MSG_RESULT([checking for mysql_next_result in -l$LIBMYSQL... no])
 				]
- 			)
+			)
 			LIBS=${odbx_saved_libs}
 			AC_CHECK_LIB([z], [compress], [LIBMYSQL="${LIBMYSQL} -lz"])
 		;;
@@ -376,8 +366,8 @@ AC_CONFIG_FILES([
 	utils/Makefile
 	utils/doc/Makefile
 	utils/po/Makefile.in
-	libopendbx.spec
-	libopendbx1.pc
-	libopendbxplus1.pc
+	opendbx.spec
+	opendbx.pc
+	opendbxplus.pc
 ])
 AC_OUTPUT

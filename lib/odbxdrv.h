@@ -40,31 +40,8 @@
 
 
 /*
- *  Logging debug information
- */
-
-#ifdef ENABLE_DEBUGLOG
-#define DEBUGLOG(x) x
-#else
-#define DEBUGLOG(x)
-#endif
-
-
-
-/*
  *  Commonly used handle and result structures
  */
-
-#ifdef ENABLE_DEBUGLOG
-struct odbx_log
-{
-	void* resource;
-	int level;
-	int (*open) ( struct odbx_log* log );
-	int (*write) ( struct odbx_log* log, int level, const char* message, ... );
-	int (*close) ( struct odbx_log* log );
-};
-#endif
 
 struct odbx_t
 {
@@ -72,9 +49,6 @@ struct odbx_t
 	void* backend;
 	void* generic;
 	void* aux;
-#ifdef ENABLE_DEBUGLOG
-	struct odbx_log log;
-#endif
 };
 
 struct odbx_result_t
@@ -115,7 +89,6 @@ struct odbx_basic_ops
 	unsigned long (*column_count) ( odbx_result_t* result );
 	const char* (*column_name) ( odbx_result_t* result, unsigned long pos );
 	int (*column_type) ( odbx_result_t* result, unsigned long pos );
-	int (*field_isnull) ( odbx_result_t* result, unsigned long pos );
 	unsigned long (*field_length) ( odbx_result_t* result, unsigned long pos );
 	const char* (*field_value) ( odbx_result_t* result, unsigned long pos );
 };

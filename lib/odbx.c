@@ -1,6 +1,6 @@
 /*
  *  OpenDBX - A simple but extensible database abstraction layer
- *  Copyright (C) 2004-2009 Norbert Sendetzky and others
+ *  Copyright (C) 2004-2008 Norbert Sendetzky and others
  *
  *  Distributed under the terms of the GNU Library General Public Licence
  * version 2 or (at your option) any later version.
@@ -10,7 +10,6 @@
 
 #include "opendbx/api.h"
 #include "odbxdrv.h"
-#include "odbxlog.h"
 #include "odbxlib.h"
 #include <stddef.h>
 #include <stdlib.h>
@@ -48,7 +47,7 @@ int odbx_init( odbx_t** handle, const char* backend, const char* host, const cha
 	int err;
 
 #ifdef ENABLE_NLS
-	if( bindtextdomain( "libopendbx1", LOCALEDIR ) == NULL )
+	if( bindtextdomain( "opendbx", LOCALEDIR ) == NULL )
 	{
 		return -ODBX_ERR_NOMEM;
 	}
@@ -68,50 +67,38 @@ int odbx_init( odbx_t** handle, const char* backend, const char* host, const cha
 	(*handle)->backend = NULL;
 	(*handle)->generic = NULL;
 	(*handle)->aux = NULL;
-#ifdef ENABLE_DEBUGLOG
-	(*handle)->log.resource = NULL;
-	(*handle)->log.level = 99;
-	(*handle)->log.open = _odbx_log_open;
-	(*handle)->log.write = _odbx_log_write;
-	(*handle)->log.close = _odbx_log_close;
 
-	if( ( err = (*handle)->log.open( &((*handle)->log) ) ) != ODBX_ERR_SUCCESS )
+	if( ( err = _odbx_lib_open( *handle, backend ) ) < 0 )
 	{
+		free( *handle );
 		return err;
 	}
-#endif
 
-	if( ( err = _odbx_lib_open( *handle, backend ) ) == ODBX_ERR_SUCCESS )
+	if( (*handle)->ops && (*handle)->ops->basic && (*handle)->ops->basic->init )
 	{
-		err = -ODBX_ERR_NOOP;
-
-		if( (*handle)->ops && (*handle)->ops->basic && (*handle)->ops->basic->init )
+		if( ( err = (*handle)->ops->basic->init( *handle, host, port ) ) < 0 )
 		{
-			if( ( err = (*handle)->ops->basic->init( *handle, host, port ) ) == ODBX_ERR_SUCCESS )
-			{
-				return ODBX_ERR_SUCCESS;
-			}
+			_odbx_lib_close( *handle );
+
+			free( *handle );
+			*handle = NULL;
 		}
 
-		_odbx_lib_close( *handle );
+		return err;
 	}
 
-#ifdef ENABLE_DEBUGLOG
-	(*handle)->log.close( &((*handle)->log) );
-#endif
+	_odbx_lib_close( *handle );
 
 	free( *handle );
 	*handle = NULL;
 
-	return err;
+	return -ODBX_ERR_NOOP;
 }
 
 
 
 int odbx_bind( odbx_t* handle, const char* database, const char* who, const char* cred, int method )
 {
-	DEBUGLOG( if( handle != NULL ) { handle->log.write( &(handle->log), 1, "odbx_bind() called" ); } )
-
 	if( database == NULL ) { return -ODBX_ERR_PARAM; }
 
 	if( handle != NULL && handle->ops != NULL && handle->ops->basic != NULL && handle->ops->basic->bind != NULL )
@@ -124,12 +111,10 @@ int odbx_bind( odbx_t* handle, const char* database, const char* who, const char
 
 
 
-/* Deprecated: odbx_bind_simple() */
+/* Depricated: odbx_bind_simple() */
 
 int odbx_bind_simple( odbx_t* handle, const char* database, const char* username, const char* password )
 {
-	DEBUGLOG( if( handle != NULL ) { handle->log.write( &(handle->log), 1, "odbx_bind_simple() called (deprecated)" ); } )
-
 	return odbx_bind( handle, database, username, password, ODBX_BIND_SIMPLE );
 }
 
@@ -137,8 +122,6 @@ int odbx_bind_simple( odbx_t* handle, const char* database, const char* username
 
 int odbx_unbind( odbx_t* handle )
 {
-	DEBUGLOG( if( handle != NULL ) { handle->log.write( &(handle->log), 1, "odbx_unbind() called" ); } )
-
 	if( handle != NULL && handle->ops != NULL && handle->ops->basic != NULL && handle->ops->basic->unbind != NULL )
 	{
 		return handle->ops->basic->unbind( handle );
@@ -151,8 +134,6 @@ int odbx_unbind( odbx_t* handle )
 
 int odbx_finish( odbx_t* handle )
 {
-	DEBUGLOG( if( handle != NULL ) { handle->log.write( &(handle->log), 1, "odbx_finish() called" ); } )
-
 	if( handle != NULL && handle->ops != NULL && handle->ops->basic != NULL && handle->ops->basic->finish != NULL )
 	{
 		int err;
@@ -167,10 +148,6 @@ int odbx_finish( odbx_t* handle )
 			return err;
 		}
 
-#ifdef ENABLE_DEBUGLOG
-		handle->log.close( &(handle->log) );
-#endif
-
 		handle->ops = NULL;
 		free( handle );
 
@@ -184,8 +161,6 @@ int odbx_finish( odbx_t* handle )
 
 int odbx_capabilities( odbx_t* handle, unsigned int cap )
 {
-	DEBUGLOG( if( handle != NULL ) { handle->log.write( &(handle->log), 1, "odbx_capabilities() called" ); } )
-
 	if( handle != NULL && handle->ops != NULL )
 	{
 		switch( cap )
@@ -207,8 +182,6 @@ int odbx_capabilities( odbx_t* handle, unsigned int cap )
 
 int odbx_get_option( odbx_t* handle, unsigned int option, void* value )
 {
-	DEBUGLOG( if( handle != NULL ) { handle->log.write( &(handle->log), 1, "odbx_get_option() called" ); } )
-
 	if( value == NULL ) { return -ODBX_ERR_PARAM; }
 
 	if( option == ODBX_OPT_LIB_VERSION )
@@ -229,8 +202,6 @@ int odbx_get_option( odbx_t* handle, unsigned int option, void* value )
 
 int odbx_set_option( odbx_t* handle, unsigned int option, void* value )
 {
-	DEBUGLOG( if( handle != NULL ) { handle->log.write( &(handle->log), 1, "odbx_set_option() called" ); } )
-
 	if( value == NULL ) { return -ODBX_ERR_PARAM; }
 
 	if( option == ODBX_OPT_LIB_VERSION ) { return -ODBX_ERR_OPTRO; }
@@ -260,8 +231,6 @@ int odbx_set_option( odbx_t* handle, unsigned int option, void* value )
 
 const char* odbx_error( odbx_t* handle, int error )
 {
-	DEBUGLOG( if( handle != NULL ) { handle->log.write( &(handle->log), 1, "odbx_error() called" ); } )
-
 	if( error == -ODBX_ERR_BACKEND )
 	{
 		if( handle != NULL && handle->ops != NULL && handle->ops->basic != NULL && handle->ops->basic->error != NULL )
@@ -269,23 +238,21 @@ const char* odbx_error( odbx_t* handle, int error )
 			return handle->ops->basic->error( handle );
 		}
 
-		return dgettext( "opendbx1", odbx_errmsg[ODBX_ERR_HANDLE] );
+		return dgettext( "opendbx", odbx_errmsg[ODBX_ERR_HANDLE] );
 	}
 
 	if( error <= ODBX_ERR_SUCCESS && error > -ODBX_MAX_ERRNO )
 	{
-		return dgettext( "opendbx1", odbx_errmsg[-error] );
+		return dgettext( "opendbx", odbx_errmsg[-error] );
 	}
 
-	return dgettext( "opendbx1", odbx_errmsg[ODBX_ERR_PARAM] );
+	return dgettext( "opendbx", odbx_errmsg[ODBX_ERR_PARAM] );
 }
 
 
 
 int odbx_error_type( odbx_t* handle, int error )
 {
-	DEBUGLOG( if( handle != NULL ) { handle->log.write( &(handle->log), 1, "odbx_error_type() called" ); } )
-
 	if( error >= ODBX_ERR_SUCCESS ) { return 0; }
 
 	switch( error )
@@ -313,8 +280,6 @@ int odbx_error_type( odbx_t* handle, int error )
 
 int odbx_escape( odbx_t* handle, const char* from, unsigned long fromlen, char* to, unsigned long* tolen )
 {
-	DEBUGLOG( if( handle != NULL ) { handle->log.write( &(handle->log), 1, "odbx_escape() called" ); } )
-
 	if( from != NULL && to != NULL && tolen != NULL )
 	{
 		if( handle != NULL && handle->ops != NULL && handle->ops->basic != NULL )
@@ -356,8 +321,6 @@ int odbx_escape( odbx_t* handle, const char* from, unsigned long fromlen, char* 
 
 int odbx_query( odbx_t* handle, const char* query, unsigned long length )
 {
-	DEBUGLOG( if( handle != NULL ) { handle->log.write( &(handle->log), 1, "odbx_query() called" ); } )
-
 	if( query == NULL ) { return ODBX_ERR_PARAM; }
 	if( length == 0 ) { length = (unsigned long) strlen( query ); }
 
@@ -373,8 +336,6 @@ int odbx_query( odbx_t* handle, const char* query, unsigned long length )
 
 int odbx_result( odbx_t* handle, odbx_result_t** result, struct timeval* timeout, unsigned long chunk )
 {
-	DEBUGLOG( if( handle != NULL ) { handle->log.write( &(handle->log), 1, "odbx_result() called" ); } )
-
 	if( handle != NULL && handle->ops != NULL && handle->ops->basic != NULL && handle->ops->basic->result != NULL )
 	{
 		int err;
@@ -395,8 +356,6 @@ int odbx_result( odbx_t* handle, odbx_result_t** result, struct timeval* timeout
 
 int odbx_result_finish( odbx_result_t* result )
 {
-	DEBUGLOG( if( result != NULL && result->handle != NULL ) { result->handle->log.write( &(result->handle->log), 1, "odbx_result_finish() called" ); } )
-
 	if( result != NULL && result->handle != NULL && result->handle->ops != NULL && result->handle->ops->basic != NULL &&
 		result->handle->ops->basic->result_finish != NULL && result->handle->ops->basic->row_fetch != NULL )
 	{
@@ -413,8 +372,6 @@ int odbx_result_finish( odbx_result_t* result )
 
 void odbx_result_free( odbx_result_t* result )
 {
-	DEBUGLOG( if( result != NULL && result->handle != NULL ) { result->handle->log.write( &(result->handle->log), 1, "odbx_result_free() called (deprecated)" ); } )
-
 	odbx_result_finish( result );
 }
 
@@ -422,8 +379,6 @@ void odbx_result_free( odbx_result_t* result )
 
 int odbx_row_fetch( odbx_result_t* result )
 {
-	DEBUGLOG( if( result != NULL && result->handle != NULL ) { result->handle->log.write( &(result->handle->log), 1, "odbx_row_fetch() called" ); } )
-
 	if( result != NULL && result->handle != NULL && result->handle->ops != NULL &&
 		result->handle->ops->basic != NULL && result->handle->ops->basic->row_fetch != NULL )
 	{
@@ -437,8 +392,6 @@ int odbx_row_fetch( odbx_result_t* result )
 
 uint64_t odbx_rows_affected( odbx_result_t* result )
 {
-	DEBUGLOG( if( result != NULL && result->handle != NULL ) { result->handle->log.write( &(result->handle->log), 1, "odbx_rows_affected() called" ); } )
-
 	if( result != NULL && result->handle != NULL && result->handle->ops != NULL &&
 		result->handle->ops->basic != NULL && result->handle->ops->basic->rows_affected != NULL )
 	{
@@ -452,8 +405,6 @@ uint64_t odbx_rows_affected( odbx_result_t* result )
 
 unsigned long odbx_column_count( odbx_result_t* result )
 {
-	DEBUGLOG( if( result != NULL && result->handle != NULL ) { result->handle->log.write( &(result->handle->log), 1, "odbx_column_count() called" ); } )
-
 	if( result != NULL && result->handle != NULL && result->handle->ops != NULL &&
 		result->handle->ops->basic != NULL && result->handle->ops->basic->column_count != NULL )
 	{
@@ -467,8 +418,6 @@ unsigned long odbx_column_count( odbx_result_t* result )
 
 const char* odbx_column_name( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( if( result != NULL && result->handle != NULL ) { result->handle->log.write( &(result->handle->log), 1, "odbx_column_name() called" ); } )
-
 	if( result != NULL && result->handle != NULL && result->handle->ops != NULL &&
 		result->handle->ops->basic != NULL && result->handle->ops->basic->column_name != NULL )
 	{
@@ -482,8 +431,6 @@ const char* odbx_column_name( odbx_result_t* result, unsigned long pos )
 
 int odbx_column_type( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( if( result != NULL && result->handle != NULL ) { result->handle->log.write( &(result->handle->log), 1, "odbx_column_type() called" ); } )
-
 	if( result != NULL && result->handle != NULL && result->handle->ops != NULL &&
 		result->handle->ops->basic != NULL && result->handle->ops->basic->column_type != NULL )
 	{
@@ -495,25 +442,8 @@ int odbx_column_type( odbx_result_t* result, unsigned long pos )
 
 
 
-int odbx_field_isnull( odbx_result_t* result, unsigned long pos )
-{
-	DEBUGLOG( if( result != NULL && result->handle != NULL ) { result->handle->log.write( &(result->handle->log), 1, "odbx_field_isnull() called" ); } )
-
-	if( result != NULL && result->handle != NULL && result->handle->ops != NULL &&
-		result->handle->ops->basic != NULL && result->handle->ops->basic->field_isnull != NULL )
-	{
-		return result->handle->ops->basic->field_isnull( result, pos );
-	}
-
-	return -ODBX_ERR_HANDLE;
-}
-
-
-
 unsigned long odbx_field_length( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( if( result != NULL && result->handle != NULL ) { result->handle->log.write( &(result->handle->log), 1, "odbx_field_length() called" ); } )
-
 	if( result != NULL && result->handle != NULL && result->handle->ops != NULL &&
 		result->handle->ops->basic != NULL && result->handle->ops->basic->field_length != NULL )
 	{
@@ -527,8 +457,6 @@ unsigned long odbx_field_length( odbx_result_t* result, unsigned long pos )
 
 const char* odbx_field_value( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( if( result != NULL && result->handle != NULL ) { result->handle->log.write( &(result->handle->log), 1, "odbx_field_value() called" ); } )
-
 	if( result != NULL && result->handle != NULL && result->handle->ops != NULL &&
 		result->handle->ops->basic != NULL && result->handle->ops->basic->field_value != NULL )
 	{
@@ -548,8 +476,6 @@ const char* odbx_field_value( odbx_result_t* result, unsigned long pos )
 
 int odbx_lo_open( odbx_result_t* result, odbx_lo_t** lo, const char* value )
 {
-	DEBUGLOG( if( result != NULL && result->handle != NULL ) { result->handle->log.write( &(result->handle->log), 1, "odbx_lo_open() called" ); } )
-
 	if( lo == NULL || value == NULL ) { return -ODBX_ERR_PARAM; }
 
 	if( result != NULL && result->handle != NULL && result->handle->ops != NULL && result->handle->ops->lo != NULL && result->handle->ops->lo->open != NULL )
@@ -564,8 +490,6 @@ int odbx_lo_open( odbx_result_t* result, odbx_lo_t** lo, const char* value )
 
 int odbx_lo_close( odbx_lo_t* lo )
 {
-	DEBUGLOG( if( lo != NULL && lo->result != NULL && lo->result->handle != NULL ) { lo->result->handle->log.write( &(lo->result->handle->log), 1, "odbx_lo_close() called" ); } )
-
 	if( lo != NULL && lo->result != NULL && lo->result->handle != NULL && lo->result->handle->ops != NULL && lo->result->handle->ops->lo != NULL && lo->result->handle->ops->lo->close != NULL )
 	{
 		return lo->result->handle->ops->lo->close( lo );
@@ -578,8 +502,6 @@ int odbx_lo_close( odbx_lo_t* lo )
 
 ssize_t odbx_lo_read( odbx_lo_t* lo, void* buffer, size_t buflen )
 {
-	DEBUGLOG( if( lo != NULL && lo->result != NULL && lo->result->handle != NULL ) { lo->result->handle->log.write( &(lo->result->handle->log), 1, "odbx_lo_read() called" ); } )
-
 	if( buffer == NULL ) { return -ODBX_ERR_PARAM; }
 
 	if( lo != NULL && lo->result != NULL && lo->result->handle != NULL && lo->result->handle->ops != NULL && lo->result->handle->ops->lo != NULL && lo->result->handle->ops->lo->read != NULL )
@@ -594,8 +516,6 @@ ssize_t odbx_lo_read( odbx_lo_t* lo, void* buffer, size_t buflen )
 
 ssize_t odbx_lo_write( odbx_lo_t* lo, void* buffer, size_t buflen )
 {
-	DEBUGLOG( if( lo != NULL && lo->result != NULL && lo->result->handle != NULL ) { lo->result->handle->log.write( &(lo->result->handle->log), 1, "odbx_lo_write() called" ); } )
-
 	if( buffer == NULL ) { return -ODBX_ERR_PARAM; }
 
 	if( lo != NULL && lo->result != NULL && lo->result->handle != NULL && lo->result->handle->ops != NULL && lo->result->handle->ops->lo != NULL && lo->result->handle->ops->lo->write != NULL )

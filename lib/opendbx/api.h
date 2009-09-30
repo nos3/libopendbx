@@ -292,8 +292,6 @@ const char* odbx_column_name( odbx_result_t* result, unsigned long pos );
 
 int odbx_column_type( odbx_result_t* result, unsigned long pos );
 
-int odbx_field_isnull( odbx_result_t* result, unsigned long pos );
-
 unsigned long odbx_field_length( odbx_result_t* result, unsigned long pos );
 
 const char* odbx_field_value( odbx_result_t* result, unsigned long pos );

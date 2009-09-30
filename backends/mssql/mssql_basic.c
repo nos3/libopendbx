@@ -38,7 +38,6 @@ struct odbx_basic_ops mssql_odbx_basic_ops = {
 	.column_count = mssql_odbx_column_count,
 	.column_name = mssql_odbx_column_name,
 	.column_type = mssql_odbx_column_type,
-	.field_isnull = mssql_odbx_field_isnull,
 	.field_length = mssql_odbx_field_length,
 	.field_value = mssql_odbx_field_value,
 };
@@ -62,8 +61,6 @@ static const char* mssql_odbx_errmsg[] = {
 
 static int mssql_odbx_init( odbx_t* handle, const char* host, const char* port )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "mssql_odbx_init() called" ); )
-
 	int len;
 	struct tdsconn* tc;
 
@@ -122,8 +119,6 @@ static int mssql_odbx_init( odbx_t* handle, const char* host, const char* port )
 
 static int mssql_odbx_bind( odbx_t* handle, const char* database, const char* who, const char* cred, int method )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "mssql_odbx_bind() called" ); )
-
 	struct tdsconn* tc = (struct tdsconn*) handle->aux;
 
 
@@ -136,7 +131,7 @@ static int mssql_odbx_bind( odbx_t* handle, const char* database, const char* wh
 
 	if( ( handle->generic = (void*) dbopen( tc->login, tc->host ) ) == NULL )
 	{
-		memcpy( tc->errmsg, dgettext( "opendbx1", mssql_odbx_errmsg[0] ), strlen( dgettext( "opendbx", mssql_odbx_errmsg[0] ) ) + 1 );
+		memcpy( tc->errmsg, dgettext( "opendbx", mssql_odbx_errmsg[0] ), strlen( dgettext( "opendbx", mssql_odbx_errmsg[0] ) ) + 1 );
 		return -ODBX_ERR_BACKEND;
 	}
 
@@ -165,8 +160,6 @@ static int mssql_odbx_bind( odbx_t* handle, const char* database, const char* wh
 
 static int mssql_odbx_unbind( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "mssql_odbx_unbind() called" ); )
-
 	dbclose( (DBPROCESS*) handle->generic );
 	return ODBX_ERR_SUCCESS;
 }
@@ -175,8 +168,6 @@ static int mssql_odbx_unbind( odbx_t* handle )
 
 static int mssql_odbx_finish( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "mssql_odbx_finish() called" ); )
-
 	if( handle->aux != NULL )
 	{
 		dbloginfree( (LOGINREC*) ((struct tdsconn*) handle->aux)->login );
@@ -196,8 +187,6 @@ static int mssql_odbx_finish( odbx_t* handle )
 
 static int mssql_odbx_get_option( odbx_t* handle, unsigned int option, void* value )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "mssql_odbx_get_option() called" ); )
-
 	switch( option )
 	{
 		case ODBX_OPT_API_VERSION:
@@ -224,8 +213,6 @@ static int mssql_odbx_get_option( odbx_t* handle, unsigned int option, void* val
 
 static int mssql_odbx_set_option( odbx_t* handle, unsigned int option, void* value )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "mssql_odbx_set_option() called" ); )
-
 	switch( option )
 	{
 		case ODBX_OPT_API_VERSION:
@@ -251,8 +238,6 @@ static int mssql_odbx_set_option( odbx_t* handle, unsigned int option, void* val
 
 static const char* mssql_odbx_error( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "mssql_odbx_error() called" ); )
-
 	struct tdsconn* aux = (struct tdsconn*) handle->aux;
 
 	if( aux != NULL )
@@ -268,8 +253,6 @@ static const char* mssql_odbx_error( odbx_t* handle )
 
 static int mssql_odbx_error_type( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "mssql_odbx_error_type() called" ); )
-
 	if( handle->aux != NULL )
 	{
 		return ((struct tdsconn*) handle->aux)->errtype;
@@ -282,8 +265,6 @@ static int mssql_odbx_error_type( odbx_t* handle )
 
 static int mssql_odbx_escape( odbx_t* handle, const char* from, unsigned long fromlen, char* to, unsigned long* tolen )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "mssql_odbx_escape() called" ); )
-
 	if( tolen == NULL )
 	{
 		return -ODBX_ERR_PARAM;
@@ -302,8 +283,6 @@ static int mssql_odbx_escape( odbx_t* handle, const char* from, unsigned long fr
 
 static int mssql_odbx_query( odbx_t* handle, const char* query, unsigned long length )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "mssql_odbx_query() called" ); )
-
 	DBPROCESS* dbproc = (DBPROCESS*) handle->generic;
 	struct tdsconn* aux = (struct tdsconn*) handle->aux;
 
@@ -329,8 +308,6 @@ static int mssql_odbx_query( odbx_t* handle, const char* query, unsigned long le
 
 static int mssql_odbx_result( odbx_t* handle, odbx_result_t** result, struct timeval* timeout, unsigned long chunk )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "mssql_odbx_result() called" ); )
-
 	DBPROCESS* dbproc = (DBPROCESS*) handle->generic;
 	struct tdsconn* caux = (struct tdsconn*) handle->aux;
 
@@ -419,8 +396,6 @@ static int mssql_odbx_result( odbx_t* handle, odbx_result_t** result, struct tim
 
 static int mssql_odbx_result_finish( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "mssql_odbx_result_finish() called" ); )
-
 	DBINT i, cols = 0;
 
 	if( result->aux != NULL )
@@ -456,8 +431,6 @@ static int mssql_odbx_result_finish( odbx_result_t* result )
 
 static int mssql_odbx_row_fetch( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "mssql_odbx_row_fetch() called" ); )
-
 	if( result->handle == NULL || result->aux == NULL )
 	{
 		return -ODBX_ERR_PARAM;
@@ -528,8 +501,6 @@ static int mssql_odbx_row_fetch( odbx_result_t* result )
 
 static uint64_t mssql_odbx_rows_affected( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "mssql_odbx_rows_affected() called" ); )
-
 	if( result->handle != NULL )
 	{
 		int count;
@@ -547,8 +518,6 @@ static uint64_t mssql_odbx_rows_affected( odbx_result_t* result )
 
 static unsigned long mssql_odbx_column_count( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "mssql_odbx_column_count() called" ); )
-
 	if( result->aux != NULL )
 	{
 		return (unsigned long) ((struct tdsares*) result->aux)->cols;
@@ -561,8 +530,6 @@ static unsigned long mssql_odbx_column_count( odbx_result_t* result )
 
 static const char* mssql_odbx_column_name( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "mssql_odbx_column_name() called" ); )
-
 	if( result->handle != NULL )
 	{
 		return dbcolname( (DBPROCESS*) result->handle->generic, pos+1 );
@@ -575,8 +542,6 @@ static const char* mssql_odbx_column_name( odbx_result_t* result, unsigned long 
 
 static int mssql_odbx_column_type( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "mssql_odbx_column_type() called" ); )
-
 	if( result->handle == NULL )
 	{
 		return -ODBX_ERR_PARAM;
@@ -645,31 +610,8 @@ static int mssql_odbx_column_type( odbx_result_t* result, unsigned long pos )
 
 
 
-static int mssql_odbx_field_isnull( odbx_result_t* result, unsigned long pos )
-{
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "mssql_odbx_field_isnull() called" ); )
-
-	struct tdsares* ares = (struct tdsares*) result->aux;
-
-	if( result->generic == NULL || ares == NULL )
-	{
-		return -ODBX_ERR_HANDLE;
-	}
-
-	if( pos >= ares->cols )
-	{
-		return -ODBX_ERR_PARAM;
-	}
-
-	return (int) ((struct tdsgres*) result->generic)[pos].ind;
-}
-
-
-
 static unsigned long mssql_odbx_field_length( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "mssql_odbx_field_length() called" ); )
-
 	struct tdsares* ares = (struct tdsares*) result->aux;
 
 	if( result->generic != NULL && ares != NULL && pos < ares->cols )
@@ -684,8 +626,6 @@ static unsigned long mssql_odbx_field_length( odbx_result_t* result, unsigned lo
 
 static const char* mssql_odbx_field_value( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "mssql_odbx_field_value() called" ); )
-
 	struct tdsgres* gres = (struct tdsgres*) result->generic;
 	struct tdsares* ares = (struct tdsares*) result->aux;
 

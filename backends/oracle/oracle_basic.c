@@ -46,7 +46,6 @@ struct odbx_basic_ops oracle_odbx_basic_ops = {
 	.column_count = oracle_odbx_column_count,
 	.column_name = oracle_odbx_column_name,
 	.column_type = oracle_odbx_column_type,
-	.field_isnull = oracle_odbx_field_isnull,
 	.field_length = oracle_odbx_field_length,
 	.field_value = oracle_odbx_field_value,
 };
@@ -66,8 +65,6 @@ static const char* oracle_odbx_errmsg[] = {
 
 static int oracle_odbx_init( odbx_t* handle, const char* host, const char* port )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "oracle_odbx_init() called" ); )
-
 	if( host == NULL ) { return -ODBX_ERR_PARAM; }
 
 	if( ( handle->aux = malloc( sizeof( struct oraconn ) ) ) == NULL )
@@ -163,8 +160,6 @@ static int oracle_odbx_init( odbx_t* handle, const char* host, const char* port 
 
 static int oracle_odbx_bind( odbx_t* handle, const char* database, const char* who, const char* cred, int method )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "oracle_odbx_bind() called" ); )
-
 	struct oraconn* conn = (struct oraconn*) handle->aux;
 
 
@@ -241,8 +236,6 @@ static int oracle_odbx_bind( odbx_t* handle, const char* database, const char* w
 
 static int oracle_odbx_unbind( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "oracle_odbx_unbind() called" ); )
-
 	struct oraconn* conn = (struct oraconn*) handle->aux;
 
 
@@ -268,8 +261,6 @@ static int oracle_odbx_unbind( odbx_t* handle )
 
 static int oracle_odbx_finish( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "oracle_odbx_finish() called" ); )
-
 	struct oraconn* conn = (struct oraconn*) handle->aux;
 
 
@@ -285,8 +276,6 @@ static int oracle_odbx_finish( odbx_t* handle )
 
 static int oracle_odbx_get_option( odbx_t* handle, unsigned int option, void* value )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "oracle_odbx_get_option() called" ); )
-
 	switch( option )
 	{
 		case ODBX_OPT_API_VERSION:
@@ -313,8 +302,6 @@ static int oracle_odbx_get_option( odbx_t* handle, unsigned int option, void* va
 
 static int oracle_odbx_set_option( odbx_t* handle, unsigned int option, void* value )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "oracle_odbx_set_option() called" ); )
-
 	if( handle->generic == NULL || handle->aux == NULL )
 	{
 		return -ODBX_ERR_PARAM;
@@ -341,14 +328,12 @@ static int oracle_odbx_set_option( odbx_t* handle, unsigned int option, void* va
 
 static const char* oracle_odbx_error( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "oracle_odbx_error() called" ); )
-
 	sb4 error;
 	struct oraconn* conn = (struct oraconn*) handle->aux;
 
 	if( conn == NULL )
 	{
-		return dgettext( "opendbx1", oracle_odbx_errmsg[0]  );
+		return dgettext( "opendbx", oracle_odbx_errmsg[0]  );
 	}
 
 	switch( conn->errcode )
@@ -393,8 +378,6 @@ static const char* oracle_odbx_error( odbx_t* handle )
 
 static int oracle_odbx_error_type( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "oracle_odbx_error_type() called" ); )
-
 	struct oraconn* conn = (struct oraconn*) handle->aux;
 
 	if( conn == NULL ) { return -1; }
@@ -414,8 +397,6 @@ static int oracle_odbx_error_type( odbx_t* handle )
 
 static int oracle_odbx_query( odbx_t* handle, const char* query, unsigned long length )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "oracle_odbx_query() called" ); )
-
 	struct oraconn* conn = (struct oraconn*) handle->aux;
 
 	if( conn == NULL )
@@ -441,8 +422,6 @@ static int oracle_odbx_query( odbx_t* handle, const char* query, unsigned long l
 
 static int oracle_odbx_result( odbx_t* handle, odbx_result_t** result, struct timeval* timeout, unsigned long chunk )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "oracle_odbx_result() called" ); )
-
 	struct oraconn* conn = (struct oraconn*) handle->aux;
 
 
@@ -462,7 +441,6 @@ static int oracle_odbx_result( odbx_t* handle, odbx_result_t** result, struct ti
 		return -ODBX_ERR_NOMEM;
 	}
 
-	(*result)->handle = handle;   // in case of an error if oracle_odbx_result_finish() is called
 	(*result)->generic = NULL;
 	(*result)->aux = NULL;
 
@@ -604,8 +582,6 @@ static int oracle_odbx_result( odbx_t* handle, odbx_result_t** result, struct ti
 
 static int oracle_odbx_result_finish( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "oracle_odbx_result_finish() called" ); )
-
 	struct orargen* rgen = (struct orargen*) result->generic;
 	struct oraraux* raux = (struct oraraux*) result->aux;
 
@@ -644,8 +620,6 @@ static int oracle_odbx_result_finish( odbx_result_t* result )
 
 static int oracle_odbx_row_fetch( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "oracle_odbx_row_fetch() called" ); )
-
 	if( result->handle == NULL || result->handle->aux == NULL )
 	{
 		return -ODBX_ERR_PARAM;
@@ -671,8 +645,6 @@ static int oracle_odbx_row_fetch( odbx_result_t* result )
 
 static uint64_t oracle_odbx_rows_affected( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "oracle_odbx_rows_affected() called" ); )
-
 	if( result->handle != NULL && result->handle->aux != NULL )
 	{
 		ub4 rows = 0;
@@ -691,8 +663,6 @@ static uint64_t oracle_odbx_rows_affected( odbx_result_t* result )
 
 static unsigned long oracle_odbx_column_count( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "oracle_odbx_column_count() called" ); )
-
 	struct oraraux* raux = (struct oraraux*) result->aux;
 
 	if( raux != NULL )
@@ -707,8 +677,6 @@ static unsigned long oracle_odbx_column_count( odbx_result_t* result )
 
 static const char* oracle_odbx_column_name( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "oracle_odbx_column_name() called" ); )
-
 	struct orargen* rgen = (struct orargen*) result->generic;
 	struct oraraux* raux = (struct oraraux*) result->aux;
 
@@ -735,8 +703,6 @@ static const char* oracle_odbx_column_name( odbx_result_t* result, unsigned long
 
 static int oracle_odbx_column_type( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "oracle_odbx_column_type() called" ); )
-
 	struct orargen* rgen = (struct orargen*) result->generic;
 	struct oraraux* raux = (struct oraraux*) result->aux;
 
@@ -796,37 +762,8 @@ static int oracle_odbx_column_type( odbx_result_t* result, unsigned long pos )
 
 
 
-static int oracle_odbx_field_isnull( odbx_result_t* result, unsigned long pos )
-{
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "oracle_odbx_field_isnull() called" ); )
-
-	struct orargen* rgen = (struct orargen*) result->generic;
-	struct oraraux* raux = (struct oraraux*) result->aux;
-
-	if( rgen == NULL || raux == NULL )
-	{
-		return -ODBX_ERR_HANDLE;
-	}
-
-	if( pos >= raux->cols )
-	{
-		return -ODBX_ERR_PARAM;
-	}
-
-	if( rgen[pos].ind == -1 )
-	{
-		return 1;
-	}
-
-	return 0;
-}
-
-
-
 static unsigned long oracle_odbx_field_length( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "oracle_odbx_field_length() called" ); )
-
 	struct orargen* rgen = (struct orargen*) result->generic;
 	struct oraraux* raux = (struct oraraux*) result->aux;
 
@@ -842,8 +779,6 @@ static unsigned long oracle_odbx_field_length( odbx_result_t* result, unsigned l
 
 static const char* oracle_odbx_field_value( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "oracle_odbx_field_value() called" ); )
-
 	struct orargen* rgen = (struct orargen*) result->generic;
 	struct oraraux* raux = (struct oraraux*) result->aux;
 
