@@ -38,7 +38,6 @@ struct odbx_basic_ops mysql_odbx_basic_ops = {
 	.column_count = mysql_odbx_column_count,
 	.column_name = mysql_odbx_column_name,
 	.column_type = mysql_odbx_column_type,
-	.field_isnull = mysql_odbx_field_isnull,
 	.field_length = mysql_odbx_field_length,
 	.field_value = mysql_odbx_field_value,
 };
@@ -56,8 +55,6 @@ static int mysql_counter = 0;
 
 static int mysql_odbx_init( odbx_t* handle, const char* host, const char* port )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "mysql_odbx_init() called" ); )
-
 	char* tmp = NULL;
 	unsigned int portnum = 0;
 
@@ -130,8 +127,6 @@ static int mysql_odbx_init( odbx_t* handle, const char* host, const char* port )
 
 static int mysql_odbx_bind( odbx_t* handle, const char* database, const char* who, const char* cred, int method )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "mysql_odbx_bind() called" ); )
-
 	struct myconn* param = (struct myconn*) handle->aux;
 
 	if( handle->generic == NULL || param == NULL )
@@ -158,11 +153,6 @@ static int mysql_odbx_bind( odbx_t* handle, const char* database, const char* wh
 
 			param->flags |= CLIENT_SSL;
 
-			DEBUGLOG(
-				handle->log.write( &(handle->log), 3,  "-> mysql_real_connect( %p, \"%s\", \"%s\", \"%s\", \"%s\", %d, \"%s\", %#x ) with TLS",
-				handle->generic, host, who, cred, database, param->port, socket, param->flags );
-			)
-
 			if( mysql_real_connect( (MYSQL*) handle->generic, host,
 				who, cred, database, param->port, socket, param->flags ) != NULL )
 			{
@@ -181,11 +171,6 @@ static int mysql_odbx_bind( odbx_t* handle, const char* database, const char* wh
 
 			param->flags &= ~CLIENT_SSL;
 	}
-
-	DEBUGLOG(
-		handle->log.write( &(handle->log), 3,  "-> mysql_real_connect( %p, \"%s\", \"%s\", \"%s\", \"%s\", %d, \"%s\", %#x ) without TLS",
-		handle->generic, host, who, cred, database, param->port, socket, param->flags );
-	)
 
 	if( mysql_real_connect( (MYSQL*) handle->generic, host,
 		who, cred, database, param->port, socket, param->flags ) == NULL )
@@ -207,8 +192,6 @@ SUCCESS:
 
 static int mysql_odbx_unbind( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "mysql_odbx_unbind() called" ); )
-
 	if( handle->generic != NULL )
 	{
 		mysql_close( (MYSQL*) handle->generic );
@@ -222,8 +205,6 @@ static int mysql_odbx_unbind( odbx_t* handle )
 
 static int mysql_odbx_finish( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "mysql_odbx_finish() called" ); )
-
 	struct myconn* aux = (struct myconn*) handle->aux;
 
 	if( aux != NULL )
@@ -257,8 +238,6 @@ static int mysql_odbx_finish( odbx_t* handle )
 
 static int mysql_odbx_get_option( odbx_t* handle, unsigned int option, void* value )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "mysql_odbx_get_option() called" ); )
-
 	switch( option )
 	{
 		case ODBX_OPT_API_VERSION:
@@ -268,7 +247,7 @@ static int mysql_odbx_get_option( odbx_t* handle, unsigned int option, void* val
 			*((int*) value) = (int) mysql_thread_safe();
 			break;
 		case ODBX_OPT_MULTI_STATEMENTS:
-#ifdef HAVE_MYSQL_MORENEXT_RESULT
+#ifdef HAVE_MYSQL_NEXT_RESULT
 			*((int*) value) = ODBX_ENABLE;
 #else
 			*((int*) value) = ODBX_DISABLE;
@@ -292,8 +271,6 @@ static int mysql_odbx_get_option( odbx_t* handle, unsigned int option, void* val
 
 static int mysql_odbx_set_option( odbx_t* handle, unsigned int option, void* value )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "mysql_odbx_set_option() called" ); )
-
 	struct myconn* aux = (struct myconn*) handle->aux;
 
 	if( handle->generic == NULL || aux == NULL )
@@ -315,7 +292,7 @@ static int mysql_odbx_set_option( odbx_t* handle, unsigned int option, void* val
 
 		case ODBX_OPT_MULTI_STATEMENTS:
 
-#ifdef HAVE_MYSQL_MORENEXT_RESULT
+#ifdef HAVE_MYSQL_NEXT_RESULT
 			if( *((int*) value) == ODBX_ENABLE )
 			{
 				aux->flags |= CLIENT_MULTI_STATEMENTS;
@@ -373,8 +350,6 @@ static int mysql_odbx_set_option( odbx_t* handle, unsigned int option, void* val
 
 static const char* mysql_odbx_error( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "mysql_odbx_error() called" ); )
-
 	return mysql_error( (MYSQL*) handle->generic );
 }
 
@@ -390,8 +365,6 @@ static const char* mysql_odbx_error( odbx_t* handle )
 
 static int mysql_odbx_error_type( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "mysql_odbx_error_type() called" ); )
-
 	unsigned int err = mysql_errno( (MYSQL*) handle->generic );
 
 	if( !err ) { return 0; }
@@ -404,8 +377,6 @@ static int mysql_odbx_error_type( odbx_t* handle )
 
 static int mysql_odbx_escape( odbx_t* handle, const char* from, unsigned long fromlen, char* to, unsigned long* tolen )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "mysql_odbx_escape() called" ); )
-
 	if( handle->generic == NULL )
 	{
 		return -ODBX_ERR_PARAM;
@@ -425,19 +396,10 @@ static int mysql_odbx_escape( odbx_t* handle, const char* from, unsigned long fr
 
 static int mysql_odbx_query( odbx_t* handle, const char* query, unsigned long length )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "mysql_odbx_query() called" ); )
-
 	if( handle->generic == NULL || handle->aux == NULL )
 	{
 		return -ODBX_ERR_PARAM;
 	}
-
-#ifdef HAVE_MYSQL_MORENEXT_RESULT
-	if( mysql_more_results( (MYSQL*) handle->generic ) != 0 )
-	{
-		return -ODBX_ERR_BUSY;
-	}
-#endif
 
 	if( mysql_real_query( (MYSQL*) handle->generic, query, length ) != 0 )
 	{
@@ -452,8 +414,6 @@ static int mysql_odbx_query( odbx_t* handle, const char* query, unsigned long le
 
 static int mysql_odbx_result( odbx_t* handle, odbx_result_t** result, struct timeval* timeout, unsigned long chunk )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "mysql_odbx_result() called" ); )
-
 	MYSQL* conn = (MYSQL*) handle->generic;
 	struct myconn* aux = (struct myconn*) handle->aux;
 
@@ -465,7 +425,7 @@ static int mysql_odbx_result( odbx_t* handle, odbx_result_t** result, struct tim
 
 	if( aux->first == 0 )
 	{
-#ifdef HAVE_MYSQL_MORENEXT_RESULT
+#ifdef HAVE_MYSQL_NEXT_RESULT
 		switch( mysql_next_result( conn ) )
 		{
 			case -1:
@@ -492,6 +452,8 @@ static int mysql_odbx_result( odbx_t* handle, odbx_result_t** result, struct tim
 	if( ( res->aux = malloc( sizeof( struct myres ) ) ) == NULL )
 	{
 		free( res );
+		*result = NULL;
+
 		return -ODBX_ERR_NOMEM;
 	}
 
@@ -507,7 +469,11 @@ static int mysql_odbx_result( odbx_t* handle, odbx_result_t** result, struct tim
 		if( ( res->generic = (void*) mysql_store_result( conn ) ) == NULL )
 		{
 			free( res->aux );
+			res->aux = NULL;
+
 			free( res );
+			*result = NULL;
+
 			return -ODBX_ERR_BACKEND;
 		}
 	}
@@ -516,7 +482,11 @@ static int mysql_odbx_result( odbx_t* handle, odbx_result_t** result, struct tim
 		if( ( res->generic = (void*) mysql_use_result( conn ) ) == NULL )
 		{
 			free( res->aux );
+			res->aux = NULL;
+
 			free( res );
+			*result = NULL;
+
 			return -ODBX_ERR_BACKEND;
 		}
 	}
@@ -530,8 +500,6 @@ static int mysql_odbx_result( odbx_t* handle, odbx_result_t** result, struct tim
 
 static int mysql_odbx_result_finish( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "mysql_odbx_result_finish() called" ); )
-
 	if( result->generic != NULL )
 	{
 		mysql_free_result( (MYSQL_RES*) result->generic );
@@ -553,8 +521,6 @@ static int mysql_odbx_result_finish( odbx_result_t* result )
 
 static int mysql_odbx_row_fetch( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "mysql_odbx_row_fetch() called" ); )
-
 	MYSQL_RES* res = (MYSQL_RES*) result->generic;
 	struct myres* aux = (struct myres*) result->aux;
 
@@ -577,8 +543,6 @@ static int mysql_odbx_row_fetch( odbx_result_t* result )
 
 static uint64_t mysql_odbx_rows_affected( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "mysql_odbx_rows_affected() called" ); )
-
 	my_ulonglong res;
 
 	if( result->handle != NULL )
@@ -596,8 +560,6 @@ static uint64_t mysql_odbx_rows_affected( odbx_result_t* result )
 
 static unsigned long mysql_odbx_column_count( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "mysql_odbx_column_count() called" ); )
-
 	if( result->aux != NULL )
 	{
 		return ((struct myres*) result->aux)->columns;
@@ -610,8 +572,6 @@ static unsigned long mysql_odbx_column_count( odbx_result_t* result )
 
 static const char* mysql_odbx_column_name( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "mysql_odbx_column_name() called" ); )
-
 	struct myres* aux = (struct myres*) result->aux;
 
 	if( aux != NULL && aux->fields != NULL && pos < aux->columns )
@@ -626,8 +586,6 @@ static const char* mysql_odbx_column_name( odbx_result_t* result, unsigned long 
 
 static int mysql_odbx_column_type( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "mysql_odbx_column_type() called" ); )
-
 	struct myres* aux = (struct myres*) result->aux;
 
 	if( aux != NULL && aux->fields != NULL && pos < aux->columns )
@@ -680,36 +638,8 @@ static int mysql_odbx_column_type( odbx_result_t* result, unsigned long pos )
 
 
 
-static int mysql_odbx_field_isnull( odbx_result_t* result, unsigned long pos )
-{
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "mysql_odbx_field_isnull() called" ); )
-
-	struct myres* aux = (struct myres*) result->aux;
-
-	if( aux == NULL || aux->lengths == NULL )
-	{
-		return -ODBX_ERR_HANDLE;
-	}
-
-	if( pos >= aux->columns )
-	{
-		return -ODBX_ERR_PARAM;
-	}
-
-	if( aux->row[pos] == NULL )
-	{
-		return 1;
-	}
-
-	return 0;
-}
-
-
-
 static unsigned long mysql_odbx_field_length( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "mysql_odbx_field_length() called" ); )
-
 	struct myres* aux = (struct myres*) result->aux;
 
 	if( aux != NULL && aux->lengths != NULL && pos < aux->columns )
@@ -724,8 +654,6 @@ static unsigned long mysql_odbx_field_length( odbx_result_t* result, unsigned lo
 
 static const char* mysql_odbx_field_value( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "mysql_odbx_field_value() called" ); )
-
 	struct myres* aux = (struct myres*) result->aux;
 
 	if( aux != NULL && aux->row != NULL && pos < aux->columns )

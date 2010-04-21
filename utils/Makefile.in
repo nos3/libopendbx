@@ -53,7 +53,7 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(opendbxdatadir)"
+am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pkgdatadir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__odbx_sql_SOURCES_DIST = argmap.cpp argmap.hpp commands.cpp \
 	commands.hpp completion.cpp completion.hpp odbx-sql.hpp \
@@ -117,7 +117,7 @@ am__nobase_list = $(am__nobase_strip_setup); \
 am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-DATA = $(opendbxdata_DATA)
+DATA = $(pkgdata_DATA)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
@@ -247,7 +247,6 @@ SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
-THREADLIBS = @THREADLIBS@
 USE_NLS = @USE_NLS@
 VERSION = @VERSION@
 XGETTEXT = @XGETTEXT@
@@ -316,8 +315,7 @@ top_srcdir = @top_srcdir@
 @ENABLEUTILS_TRUE@odbx_sql_CPPFLAGS = -DLOCALEDIR=\"$(localedir)\" -DKEYWORDFILE=\"$(pkgdatadir)/keywords\"
 @ENABLEUTILS_TRUE@odbx_sql_LDADD = ../lib/.libs/$(LIBPREFIX)opendbx$(LIBSUFFIX) ../lib/.libs/$(LIBPREFIX)opendbxplus$(LIBSUFFIX) -lreadline -lncurses
 @ENABLEUTILS_TRUE@EXTRA_DIST = keywords
-@ENABLEUTILS_TRUE@opendbxdatadir = $(datarootdir)/opendbx
-@ENABLEUTILS_TRUE@opendbxdata_DATA = keywords
+@ENABLEUTILS_TRUE@pkgdata_DATA = keywords
 all: all-recursive
 
 .SUFFIXES:
@@ -492,26 +490,26 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
-install-opendbxdataDATA: $(opendbxdata_DATA)
+install-pkgdataDATA: $(pkgdata_DATA)
 	@$(NORMAL_INSTALL)
-	test -z "$(opendbxdatadir)" || $(MKDIR_P) "$(DESTDIR)$(opendbxdatadir)"
-	@list='$(opendbxdata_DATA)'; test -n "$(opendbxdatadir)" || list=; \
+	test -z "$(pkgdatadir)" || $(MKDIR_P) "$(DESTDIR)$(pkgdatadir)"
+	@list='$(pkgdata_DATA)'; test -n "$(pkgdatadir)" || list=; \
 	for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  echo "$$d$$p"; \
 	done | $(am__base_list) | \
 	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(opendbxdatadir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(opendbxdatadir)" || exit $$?; \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgdatadir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgdatadir)" || exit $$?; \
 	done
 
-uninstall-opendbxdataDATA:
+uninstall-pkgdataDATA:
 	@$(NORMAL_UNINSTALL)
-	@list='$(opendbxdata_DATA)'; test -n "$(opendbxdatadir)" || list=; \
+	@list='$(pkgdata_DATA)'; test -n "$(pkgdatadir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	test -n "$$files" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(opendbxdatadir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(opendbxdatadir)" && rm -f $$files
+	echo " ( cd '$(DESTDIR)$(pkgdatadir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(pkgdatadir)" && rm -f $$files
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.
@@ -711,7 +709,7 @@ check: check-recursive
 all-am: Makefile $(PROGRAMS) $(DATA)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(opendbxdatadir)"; do \
+	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pkgdatadir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-recursive
@@ -761,7 +759,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-opendbxdataDATA
+install-data-am: install-pkgdataDATA
 
 install-dvi: install-dvi-recursive
 
@@ -807,7 +805,7 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-opendbxdataDATA
+uninstall-am: uninstall-binPROGRAMS uninstall-pkgdataDATA
 
 .MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) ctags-recursive \
 	install-am install-strip tags-recursive
@@ -820,14 +818,13 @@ uninstall-am: uninstall-binPROGRAMS uninstall-opendbxdataDATA
 	install install-am install-binPROGRAMS install-data \
 	install-data-am install-dvi install-dvi-am install-exec \
 	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-opendbxdataDATA \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	installdirs-am maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-recursive \
-	uninstall uninstall-am uninstall-binPROGRAMS \
-	uninstall-opendbxdataDATA
+	install-info-am install-man install-pdf install-pdf-am \
+	install-pkgdataDATA install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs installdirs-am \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am tags tags-recursive uninstall uninstall-am \
+	uninstall-binPROGRAMS uninstall-pkgdataDATA
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

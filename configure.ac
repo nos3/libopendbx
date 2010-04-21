@@ -1,8 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.57)
-AC_INIT([libopendbx], [1.5.0], [http://bugs.linuxnetworks.de/])
+AC_PREREQ(2.61)
+AC_INIT([opendbx],[1.4.5],[http://bugs.linuxnetworks.de/])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
@@ -70,7 +70,7 @@ AC_STRUCT_TM
 # Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_TIME
-AC_CHECK_HEADERS([dlfcn.h getopt.h inttypes.h libintl.h pthread.h stdlib.h string.h sys/time.h unistd.h windows.h windef.h winsock2.h])
+AC_CHECK_HEADERS([dlfcn.h getopt.h inttypes.h libintl.h stdlib.h string.h sys/time.h unistd.h windows.h windef.h winsock2.h])
 
 
 # Checks for library functions.
@@ -88,11 +88,6 @@ ORIGLIBS=${LIBS}; LIBS=""
 AC_SEARCH_LIBS([dlopen], [dl], [AC_DEFINE([HAVE_LIBDL], 1, [Have -ldl])])
 MAINLIBS=${LIBS}; LIBS=${ORIGLIBS}
 
-AC_SUBST([THREADLIBS])
-ORIGLIBS=${LIBS}; LIBS=""
-AC_SEARCH_LIBS([pthread_create], [pthread], [AC_DEFINE([HAVE_LIBPTHREAD], 1, [Have -lpthread])])
-THREADLIBS=${LIBS}; LIBS=${ORIGLIBS}
-
 
 # Checks for additional programs
 AC_CHECK_PROG([db2man], [db2x_manxml], [yes], [no])
@@ -105,23 +100,13 @@ AM_CONDITIONAL([ENABLEMAN], [test "x${db2man}" = xyes -a "x${doxygen}" = xyes])
 
 
 # Build options
-AC_ARG_ENABLE([versioned-symbols], AC_HELP_STRING([--enable-versioned-symbols], [use versioned symbols]), [vsymldflags="${enableval}"], [vsymldflags=no])
-AM_CONDITIONAL([VSYMLDFLAGS], [test "x${vsymldflags}" = xyes])
-
 AC_ARG_ENABLE([singlelib], [AS_HELP_STRING([--enable-singlelib], [build single library including backends])], [singlelib="${enableval}"], [singlelib=no])
 AM_CONDITIONAL([SINGLELIB], [test "x${singlelib}" = xyes])
 
-AC_ARG_ENABLE([debug-log], [AS_HELP_STRING([--enable-debug-log], [enable debug logging])], [debuglog="${enableval}"], [debuglog=no])
-
-if test "x${debuglog}" = xyes; then
-	AC_DEFINE([ENABLE_DEBUGLOG], [1], [Enable debug logging])
-	AC_CHECK_FUNCS([localtime strftime time vfprintf])
-fi
-
-AC_ARG_ENABLE([test], [AS_HELP_STRING([--enable-test], [build OpenDBX test applications])], [test="${enableval}"], [test=no])
+AC_ARG_ENABLE([test], [AS_HELP_STRING([--disable-test], [don't build OpenDBX test applications])], [test="${enableval}"], [test=yes])
 AM_CONDITIONAL([ENABLETEST], [test "x${test}" = xyes])
 
-AC_ARG_ENABLE([utils], [AS_HELP_STRING([--enalble-utils], [build OpenDBX utility applications])], [utils="${enableval}"], [utils=no])
+AC_ARG_ENABLE([utils], [AS_HELP_STRING([--disable-utils], [don't build OpenDBX utility applications])], [utils="${enableval}"], [utils=yes])
 AM_CONDITIONAL([ENABLEUTILS], [test "x${utils}" = xyes])
 
 if test "x${utils}" = xyes; then
@@ -182,6 +167,7 @@ int main() { isc_attach_database( NULL, 0, "", NULL, 0, NULL ); return 0; }
 				[AC_DEFINE([HAVE_LIBSYBDB], 1, [Have -lsybdb]) LIBMSSQL="sybdb"],
 				[AC_MSG_ERROR([mssql library (libsybdb) not found])]
 			)
+			AC_CHECK_MEMBER([struct dbdaterec.year], [AC_DEFINE([HAVE_LIBSYBDB_MSLIB], 1, [Have mslib type of "struct dbdaterec"])], [], [[#include <sybdb.h>]])
 		;;
 		mysql)
 			AC_CHECK_HEADERS([mysql.h], , [AC_MSG_ERROR([mysql header (mysql.h) not found])], [
@@ -225,16 +211,16 @@ int main() { mysql_init( NULL ); return 0; }
 #endif
 #include <stddef.h>
 #include <mysql.h>
-int main() { mysql_more_results( NULL ); mysql_next_result( NULL ); return 0; }
+int main() { mysql_next_result( NULL ); return 0; }
 				],
 				[
-					AC_MSG_RESULT([checking for mysql_more_results and mysql_next_result in -l$LIBMYSQL... yes])
-					AC_DEFINE([HAVE_MYSQL_MORENEXT_RESULT], 1, [Have mysql_more_results and mysql_next_result])
+					AC_MSG_RESULT([checking for mysql_next_result in -l$LIBMYSQL... yes])
+					AC_DEFINE([HAVE_MYSQL_NEXT_RESULT], 1, [Have mysql_next_result])
 				],
 				[
-					AC_MSG_RESULT([checking for mysql_more_results and mysql_next_result in -l$LIBMYSQL... no])
+					AC_MSG_RESULT([checking for mysql_next_result in -l$LIBMYSQL... no])
 				]
- 			)
+			)
 			LIBS=${odbx_saved_libs}
 			AC_CHECK_LIB([z], [compress], [LIBMYSQL="${LIBMYSQL} -lz"])
 		;;
@@ -376,14 +362,13 @@ AC_CONFIG_FILES([
 	doc/Makefile
 	doc/Doxyfile
 	lib/Makefile
-	lib/opendbx/api.h
 	po/Makefile.in
 	test/Makefile
 	utils/Makefile
 	utils/doc/Makefile
 	utils/po/Makefile.in
-	libopendbx.spec
-	libopendbx1.pc
-	libopendbxplus1.pc
+	opendbx.spec
+	opendbx.pc
+	opendbxplus.pc
 ])
 AC_OUTPUT

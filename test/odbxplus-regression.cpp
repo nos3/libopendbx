@@ -278,7 +278,7 @@ void exec( vector<Conn>& conn, struct odbxstmt* qptr, int verbose )
 
 							default:
 
-								if( result.fieldIsNull( i ) ) { cout << "NULL" << endl; }
+								if( result.fieldValue( i ) == NULL ) { cout << "NULL" << endl; }
 								else { cout << "'" << string( result.fieldValue( i ) ) << "'" << endl; }
 						}
 					}

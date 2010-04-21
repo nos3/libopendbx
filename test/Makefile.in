@@ -35,8 +35,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @ENABLETEST_TRUE@noinst_PROGRAMS = odbxtest$(EXEEXT) \
-@ENABLETEST_TRUE@	odbxplustest$(EXEEXT) \
-@ENABLETEST_TRUE@	odbxplusthreads$(EXEEXT)
+@ENABLETEST_TRUE@	odbxplustest$(EXEEXT)
 subdir = test
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -55,8 +54,7 @@ CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
-am__odbxplustest_SOURCES_DIST = odbxplus-regression.cpp \
-	odbx-regression.h
+am__odbxplustest_SOURCES_DIST = odbxplus-regression.cpp
 @ENABLETEST_TRUE@am_odbxplustest_OBJECTS =  \
 @ENABLETEST_TRUE@	odbxplus-regression.$(OBJEXT)
 odbxplustest_OBJECTS = $(am_odbxplustest_OBJECTS)
@@ -66,16 +64,6 @@ odbxplustest_OBJECTS = $(am_odbxplustest_OBJECTS)
 odbxplustest_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(odbxplustest_LDFLAGS) $(LDFLAGS) -o $@
-am__odbxplusthreads_SOURCES_DIST = odbxplus-threads.cpp
-@ENABLETEST_TRUE@am_odbxplusthreads_OBJECTS =  \
-@ENABLETEST_TRUE@	odbxplus-threads.$(OBJEXT)
-odbxplusthreads_OBJECTS = $(am_odbxplusthreads_OBJECTS)
-@ENABLETEST_TRUE@odbxplusthreads_DEPENDENCIES =  \
-@ENABLETEST_TRUE@	../lib/$(LIBPREFIX)opendbx.la \
-@ENABLETEST_TRUE@	../lib/$(LIBPREFIX)opendbxplus.la
-odbxplusthreads_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(odbxplusthreads_LDFLAGS) $(LDFLAGS) -o $@
 am__odbxtest_SOURCES_DIST = odbx-regression.c odbx-regression.h
 @ENABLETEST_TRUE@am_odbxtest_OBJECTS = odbx-regression.$(OBJEXT)
 odbxtest_OBJECTS = $(am_odbxtest_OBJECTS)
@@ -106,10 +94,8 @@ CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(odbxplustest_SOURCES) $(odbxplusthreads_SOURCES) \
-	$(odbxtest_SOURCES)
+SOURCES = $(odbxplustest_SOURCES) $(odbxtest_SOURCES)
 DIST_SOURCES = $(am__odbxplustest_SOURCES_DIST) \
-	$(am__odbxplusthreads_SOURCES_DIST) \
 	$(am__odbxtest_SOURCES_DIST)
 ETAGS = etags
 CTAGS = ctags
@@ -209,7 +195,6 @@ SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
-THREADLIBS = @THREADLIBS@
 USE_NLS = @USE_NLS@
 VERSION = @VERSION@
 XGETTEXT = @XGETTEXT@
@@ -276,12 +261,9 @@ INCLUDES = -I../lib
 @ENABLETEST_TRUE@odbxtest_SOURCES = odbx-regression.c odbx-regression.h
 @ENABLETEST_TRUE@odbxtest_LDADD = ../lib/$(LIBPREFIX)opendbx.la
 @ENABLETEST_TRUE@odbxtest_LDFLAGS = -static
-@ENABLETEST_TRUE@odbxplustest_SOURCES = odbxplus-regression.cpp odbx-regression.h
+@ENABLETEST_TRUE@odbxplustest_SOURCES = odbxplus-regression.cpp
 @ENABLETEST_TRUE@odbxplustest_LDADD = ../lib/$(LIBPREFIX)opendbx.la ../lib/$(LIBPREFIX)opendbxplus.la
 @ENABLETEST_TRUE@odbxplustest_LDFLAGS = -static
-@ENABLETEST_TRUE@odbxplusthreads_SOURCES = odbxplus-threads.cpp
-@ENABLETEST_TRUE@odbxplusthreads_LDADD = ../lib/$(LIBPREFIX)opendbx.la ../lib/$(LIBPREFIX)opendbxplus.la  @THREADLIBS@
-@ENABLETEST_TRUE@odbxplusthreads_LDFLAGS = -static
 EXTRA_DIST = \
 	odbxtest.site.template \
 	odbxtest.sh \
@@ -341,9 +323,6 @@ clean-noinstPROGRAMS:
 odbxplustest$(EXEEXT): $(odbxplustest_OBJECTS) $(odbxplustest_DEPENDENCIES) 
 	@rm -f odbxplustest$(EXEEXT)
 	$(odbxplustest_LINK) $(odbxplustest_OBJECTS) $(odbxplustest_LDADD) $(LIBS)
-odbxplusthreads$(EXEEXT): $(odbxplusthreads_OBJECTS) $(odbxplusthreads_DEPENDENCIES) 
-	@rm -f odbxplusthreads$(EXEEXT)
-	$(odbxplusthreads_LINK) $(odbxplusthreads_OBJECTS) $(odbxplusthreads_LDADD) $(LIBS)
 odbxtest$(EXEEXT): $(odbxtest_OBJECTS) $(odbxtest_DEPENDENCIES) 
 	@rm -f odbxtest$(EXEEXT)
 	$(odbxtest_LINK) $(odbxtest_OBJECTS) $(odbxtest_LDADD) $(LIBS)
@@ -356,7 +335,6 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/odbx-regression.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/odbxplus-regression.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/odbxplus-threads.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

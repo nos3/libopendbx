@@ -83,8 +83,8 @@ namespace OpenDBX
 	{
 		if( m_ref != NULL && --(*m_ref) == 0 )
 		{
-			delete m_impl;
-			delete m_ref;
+				delete m_impl;
+				delete m_ref;
 		}
 	}
 
@@ -256,13 +256,6 @@ namespace OpenDBX
 	odbxtype Result::columnType( unsigned long pos ) throw( std::exception )
 	{
 		return m_impl->columnType( pos );
-	}
-
-
-
-	bool Result::fieldIsNull( unsigned long pos ) throw( std::exception )
-	{
-		return m_impl->fieldIsNull( pos );
 	}
 
 

@@ -1,6 +1,6 @@
 /*
  *  OpenDBX - A simple but extensible database abstraction layer
- *  Copyright (C) 2005-2009 Norbert Sendetzky and others
+ *  Copyright (C) 2005-2008 Norbert Sendetzky and others
  *
  *  Distributed under the terms of the GNU Library General Public Licence
  * version 2 or (at your option) any later version.
@@ -40,7 +40,6 @@ struct odbx_basic_ops firebird_odbx_basic_ops = {
 	.column_count = firebird_odbx_column_count,
 	.column_name = firebird_odbx_column_name,
 	.column_type = firebird_odbx_column_type,
-	.field_isnull = firebird_odbx_field_isnull,
 	.field_length = firebird_odbx_field_length,
 	.field_value = firebird_odbx_field_value,
 };
@@ -55,8 +54,6 @@ struct odbx_basic_ops firebird_odbx_basic_ops = {
 
 static int firebird_odbx_init( odbx_t* handle, const char* host, const char* port )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "firebird_odbx_init() called" ); )
-
 	handle->generic = NULL;
 
 	if( ( handle->aux = malloc( sizeof( struct fbconn ) ) ) == NULL )
@@ -126,8 +123,6 @@ static int firebird_odbx_init( odbx_t* handle, const char* host, const char* por
 
 static int firebird_odbx_bind( odbx_t* handle, const char* database, const char* who, const char* cred, int method )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "firebird_odbx_bind() called" ); )
-
 	struct fbconn* fbc = (struct fbconn*) handle->aux;
 
 	if( method != ODBX_BIND_SIMPLE ) { return -ODBX_ERR_NOTSUP; }
@@ -206,8 +201,6 @@ static int firebird_odbx_bind( odbx_t* handle, const char* database, const char*
 
 static int firebird_odbx_unbind( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "firebird_odbx_unbind() called" ); )
-
 	struct fbconn* fbc = (struct fbconn*) handle->aux;
 
 	if( fbc == NULL )
@@ -233,8 +226,6 @@ static int firebird_odbx_unbind( odbx_t* handle )
 
 static int firebird_odbx_finish( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "firebird_odbx_finish() called" ); )
-
 	if( handle->aux != NULL )
 	{
 		free( ((struct fbconn*) handle->aux)->path );
@@ -250,8 +241,6 @@ static int firebird_odbx_finish( odbx_t* handle )
 
 static int firebird_odbx_get_option( odbx_t* handle, unsigned int option, void* value )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "firebird_odbx_get_option() called" ); )
-
 	switch( option )
 	{
 		case ODBX_OPT_API_VERSION:
@@ -278,8 +267,6 @@ static int firebird_odbx_get_option( odbx_t* handle, unsigned int option, void* 
 
 static int firebird_odbx_set_option( odbx_t* handle, unsigned int option, void* value )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "firebird_odbx_set_option() called" ); )
-
 	switch( option )
 	{
 		case ODBX_OPT_API_VERSION:
@@ -300,8 +287,6 @@ static int firebird_odbx_set_option( odbx_t* handle, unsigned int option, void* 
 
 static const char* firebird_odbx_error( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "firebird_odbx_error() called" ); )
-
 	int len = 0;
 	char msg[512];
 	struct fbconn* fbc = (struct fbconn*) handle->aux;
@@ -335,8 +320,6 @@ static const char* firebird_odbx_error( odbx_t* handle )
 
 static int firebird_odbx_error_type( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "firebird_odbx_error_type() called" ); )
-
 	switch( isc_sqlcode( ((struct fbconn*) handle->aux)->status ) )
 	{
 		case 0:
@@ -352,18 +335,11 @@ static int firebird_odbx_error_type( odbx_t* handle )
 
 static int firebird_odbx_query( odbx_t* handle, const char* query, unsigned long length )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "firebird_odbx_query() called" ); )
-
 	struct fbconn* fbc = (struct fbconn*) handle->aux;
 
 	if( fbc == NULL )
 	{
 		return -ODBX_ERR_PARAM;
-	}
-
-	if( fbc->numstmt != 0 )
-	{
-		return -ODBX_ERR_BUSY;
 	}
 
 	fbc->qda->sqld = 0;
@@ -388,8 +364,6 @@ static int firebird_odbx_query( odbx_t* handle, const char* query, unsigned long
 
 static int firebird_odbx_result( odbx_t* handle, odbx_result_t** result, struct timeval* timeout, unsigned long chunk )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "firebird_odbx_result() called" ); )
-
 	struct fbconn* fbc = (struct fbconn*) handle->aux;
 
 	if( fbc == NULL )
@@ -419,6 +393,7 @@ static int firebird_odbx_result( odbx_t* handle, odbx_result_t** result, struct 
 		if( ( err = firebird_priv_execute_stmt( handle, fbc ) ) != ODBX_ERR_SUCCESS )
 		{
 			firebird_priv_result_free( *result );
+			*result = NULL;
 			return err;
 		}
 
@@ -429,6 +404,7 @@ static int firebird_odbx_result( odbx_t* handle, odbx_result_t** result, struct 
 	if( ( (*result)->generic = malloc( XSQLDA_LENGTH( fbc->qda->sqld ) ) ) == NULL )
 	{
 		firebird_priv_result_free( *result );
+		*result = NULL;
 		return -ODBX_ERR_NOMEM;
 	}
 
@@ -438,6 +414,7 @@ static int firebird_odbx_result( odbx_t* handle, odbx_result_t** result, struct 
 	if( ( (*result)->aux = malloc( sizeof( struct fbaux ) ) ) == NULL )
 	{
 		firebird_priv_result_free( *result );
+		*result = NULL;
 		return -ODBX_ERR_NOMEM;
 	}
 
@@ -446,12 +423,14 @@ static int firebird_odbx_result( odbx_t* handle, odbx_result_t** result, struct 
 	if( ( fba->nullind = (short*) malloc( fbc->qda->sqld * sizeof( short ) ) ) == NULL )
 	{
 		firebird_priv_result_free( *result );
+		*result = NULL;
 		return -ODBX_ERR_NOMEM;
 	}
 
 	if( isc_dsql_describe( fbc->status, &(fbc->stmt), SQL_DIALECT_V6, (XSQLDA*) (*result)->generic ) != 0 )
 	{
 		firebird_priv_result_free( *result );
+		*result = NULL;
 		return -ODBX_ERR_BACKEND;
 	}
 
@@ -464,6 +443,7 @@ static int firebird_odbx_result( odbx_t* handle, odbx_result_t** result, struct 
 		{
 			while( --i >= 0 ) { free( var[i].sqldata ); }
 			firebird_priv_result_free( *result );
+			*result = NULL;
 			return -ODBX_ERR_NOMEM;
 		}
 
@@ -474,6 +454,7 @@ static int firebird_odbx_result( odbx_t* handle, odbx_result_t** result, struct 
 	{
 		while( i >= 0 ) { free( var[i--].sqldata ); }
 		firebird_priv_result_free( *result );
+		*result = NULL;
 		return -ODBX_ERR_BACKEND;
 	}
 
@@ -484,8 +465,6 @@ static int firebird_odbx_result( odbx_t* handle, odbx_result_t** result, struct 
 
 static int firebird_odbx_result_finish( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "firebird_odbx_result_finish() called" ); )
-
 	struct fbconn* fbc = (struct fbconn*) result->handle->aux;
 
 	if( fbc != NULL )
@@ -531,8 +510,6 @@ static int firebird_odbx_result_finish( odbx_result_t* result )
 
 static int firebird_odbx_row_fetch( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "firebird_odbx_row_fetch() called" ); )
-
 	struct fbconn* fbc = (struct fbconn*) result->handle->aux;
 
 
@@ -607,8 +584,6 @@ static int firebird_odbx_row_fetch( odbx_result_t* result )
 
 static uint64_t firebird_odbx_rows_affected( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "firebird_odbx_rows_affected() called" ); )
-
 	char buffer[64] = { 0 };
 	static char info[] = { isc_info_sql_records, isc_info_end };
 	struct fbconn* fbc = (struct fbconn*) result->handle->aux;
@@ -646,8 +621,6 @@ static uint64_t firebird_odbx_rows_affected( odbx_result_t* result )
 
 static unsigned long firebird_odbx_column_count( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "firebird_odbx_column_count() called" ); )
-
 	if( result->generic != NULL )
 	{
 		return (unsigned long) ((XSQLDA*) result->generic)->sqln;
@@ -660,8 +633,6 @@ static unsigned long firebird_odbx_column_count( odbx_result_t* result )
 
 static const char* firebird_odbx_column_name( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "firebird_odbx_column_name() called" ); )
-
 	short len;
 	XSQLDA* da = (XSQLDA*) result->generic;
 
@@ -687,8 +658,6 @@ static const char* firebird_odbx_column_name( odbx_result_t* result, unsigned lo
 
 static int firebird_odbx_column_type( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "firebird_odbx_column_type() called" ); )
-
 	XSQLDA* da = (XSQLDA*) result->generic;
 
 	if( da == NULL || pos > da->sqln - 1 )
@@ -734,37 +703,8 @@ static int firebird_odbx_column_type( odbx_result_t* result, unsigned long pos )
 
 
 
-static int firebird_odbx_field_isnull( odbx_result_t* result, unsigned long pos )
-{
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "firebird_odbx_field_isnull() called" ); )
-
-	XSQLDA* da = (XSQLDA*) result->generic;
-
-
-	if( da == NULL )
-	{
-		return -ODBX_ERR_HANDLE;
-	}
-
-	if( pos >= da->sqln )
-	{
-		return -ODBX_ERR_PARAM;
-	}
-
-	if( *(da->sqlvar[pos].sqlind) == -1 )
-	{
-		return 1;
-	}
-
-	return 0;
-}
-
-
-
 static unsigned long firebird_odbx_field_length( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "firebird_odbx_field_length() called" ); )
-
 	XSQLDA* da = (XSQLDA*) result->generic;
 
 
@@ -785,8 +725,6 @@ static unsigned long firebird_odbx_field_length( odbx_result_t* result, unsigned
 
 static const char* firebird_odbx_field_value( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "firebird_odbx_field_value() called" ); )
-
 	XSQLDA* da = (XSQLDA*) result->generic;
 
 

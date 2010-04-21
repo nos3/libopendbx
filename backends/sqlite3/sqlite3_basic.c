@@ -38,7 +38,6 @@ struct odbx_basic_ops sqlite3_odbx_basic_ops = {
 	.column_count = sqlite3_odbx_column_count,
 	.column_name = sqlite3_odbx_column_name,
 	.column_type = sqlite3_odbx_column_type,
-	.field_isnull = sqlite3_odbx_field_isnull,
 	.field_length = sqlite3_odbx_field_length,
 	.field_value = sqlite3_odbx_field_value,
 };
@@ -71,8 +70,6 @@ static const char* sqlite3_odbx_errmsg[] = {
 
 static int sqlite3_odbx_init( odbx_t* handle, const char* host, const char* port )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "sqlite3_odbx_init() called" ); )
-
 	if( ( handle->aux = malloc( sizeof( struct sconn ) ) ) == NULL )
 	{
 		return -ODBX_ERR_NOMEM;
@@ -117,8 +114,6 @@ static int sqlite3_odbx_init( odbx_t* handle, const char* host, const char* port
 
 static int sqlite3_odbx_bind( odbx_t* handle, const char* database, const char* who, const char* cred, int method )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "sqlite3_odbx_bind() called" ); )
-
 	struct sconn* aux = (struct sconn*) handle->aux;
 
 
@@ -152,8 +147,6 @@ static int sqlite3_odbx_bind( odbx_t* handle, const char* database, const char* 
 
 static int sqlite3_odbx_unbind( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "sqlite3_odbx_unbind() called" ); )
-
 	struct sconn* aux = (struct sconn*) handle->aux;
 
 	if( aux == NULL ) { return -ODBX_ERR_PARAM; }
@@ -184,8 +177,6 @@ static int sqlite3_odbx_unbind( odbx_t* handle )
 
 static int sqlite3_odbx_finish( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "sqlite3_odbx_finish() called" ); )
-
 	if( handle->aux != NULL )
 	{
 		free( ((struct sconn*) handle->aux)->path );
@@ -202,8 +193,6 @@ static int sqlite3_odbx_finish( odbx_t* handle )
 
 static int sqlite3_odbx_get_option( odbx_t* handle, unsigned int option, void* value )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "sqlite3_odbx_get_option() called" ); )
-
 	switch( option )
 	{
 		case ODBX_OPT_API_VERSION:
@@ -233,8 +222,6 @@ static int sqlite3_odbx_get_option( odbx_t* handle, unsigned int option, void* v
 
 static int sqlite3_odbx_set_option( odbx_t* handle, unsigned int option, void* value )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "sqlite3_odbx_set_option() called" ); )
-
 	switch( option )
 	{
 		case ODBX_OPT_API_VERSION:
@@ -260,8 +247,6 @@ static int sqlite3_odbx_set_option( odbx_t* handle, unsigned int option, void* v
 
 static const char* sqlite3_odbx_error( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "sqlite3_odbx_error() called" ); )
-
 	if( handle->generic != NULL )
 	{
 		return sqlite3_errmsg( (sqlite3*) handle->generic );
@@ -269,24 +254,22 @@ static const char* sqlite3_odbx_error( odbx_t* handle )
 
 	if( handle->aux == NULL )
 	{
-		return dgettext( "opendbx1", sqlite3_odbx_errmsg[1] );
+		return dgettext( "opendbx", sqlite3_odbx_errmsg[1] );
 	}
 
 	switch( ((struct sconn*) handle->aux)->err )
 	{
 		case SQLITE_CANTOPEN:
-			return dgettext( "opendbx1", sqlite3_odbx_errmsg[2] );
+			return dgettext( "opendbx", sqlite3_odbx_errmsg[2] );
 	}
 
-	return dgettext( "opendbx1", sqlite3_odbx_errmsg[0] );
+	return dgettext( "opendbx", sqlite3_odbx_errmsg[0] );
 }
 
 
 
 static int sqlite3_odbx_error_type( odbx_t* handle )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "sqlite3_odbx_error_type() called" ); )
-
 	int err;
 
 	if( handle->generic != NULL )
@@ -323,18 +306,11 @@ static int sqlite3_odbx_error_type( odbx_t* handle )
 
 static int sqlite3_odbx_query( odbx_t* handle, const char* query, unsigned long length )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "sqlite3_odbx_query() called" ); )
-
 	struct sconn* aux = (struct sconn*) handle->aux;
 
 	if( query == NULL || aux == NULL )
 	{
 		return -ODBX_ERR_PARAM;
-	}
-
-	if( aux->res != NULL )
-	{
-		return -ODBX_ERR_BUSY;
 	}
 
 	if( ( aux->stmt = malloc( length + 1 ) ) == NULL )
@@ -355,8 +331,6 @@ static int sqlite3_odbx_query( odbx_t* handle, const char* query, unsigned long 
 
 static int sqlite3_odbx_result( odbx_t* handle, odbx_result_t** result, struct timeval* timeout, unsigned long chunk )
 {
-	DEBUGLOG( handle->log.write( &(handle->log), 1, "sqlite3_odbx_result() called" ); )
-
 	struct sconn* aux = (struct sconn*) handle->aux;
 
 	if( aux == NULL ) { return -ODBX_ERR_PARAM; }
@@ -432,8 +406,6 @@ static int sqlite3_odbx_result( odbx_t* handle, odbx_result_t** result, struct t
 
 static int sqlite3_odbx_result_finish( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "sqlite3_odbx_result_finish() called" ); )
-
 	struct sconn* aux = (struct sconn*) result->handle->aux;
 
 	if( aux == NULL ) { return -ODBX_ERR_PARAM; }
@@ -453,8 +425,6 @@ static int sqlite3_odbx_result_finish( odbx_result_t* result )
 
 static int sqlite3_odbx_row_fetch( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "sqlite3_odbx_row_fetch() called" ); )
-
 	struct sconn* aux = (struct sconn*) result->handle->aux;
 
 	if( aux == NULL ) { return -ODBX_ERR_PARAM; }
@@ -481,8 +451,6 @@ static int sqlite3_odbx_row_fetch( odbx_result_t* result )
 
 static uint64_t sqlite3_odbx_rows_affected( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "sqlite3_odbx_rows_affected() called" ); )
-
 	if( result->handle != NULL )
 	{
 		return (uint64_t) sqlite3_changes( (sqlite3*) result->handle->generic );
@@ -495,8 +463,6 @@ static uint64_t sqlite3_odbx_rows_affected( odbx_result_t* result )
 
 static unsigned long sqlite3_odbx_column_count( odbx_result_t* result )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "sqlite3_odbx_column_count() called" ); )
-
 	return (unsigned long) sqlite3_column_count( (sqlite3_stmt*) result->generic );
 }
 
@@ -504,8 +470,6 @@ static unsigned long sqlite3_odbx_column_count( odbx_result_t* result )
 
 static const char* sqlite3_odbx_column_name( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "sqlite3_odbx_column_name() called" ); )
-
 	return (const char*) sqlite3_column_name( (sqlite3_stmt*) result->generic, pos );
 }
 
@@ -513,8 +477,6 @@ static const char* sqlite3_odbx_column_name( odbx_result_t* result, unsigned lon
 
 static int sqlite3_odbx_column_type( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "sqlite3_odbx_column_type() called" ); )
-
 	switch( sqlite3_column_type( (sqlite3_stmt*) result->generic, pos ) )
 	{
 		case SQLITE_INTEGER:
@@ -532,30 +494,8 @@ static int sqlite3_odbx_column_type( odbx_result_t* result, unsigned long pos )
 
 
 
-static int sqlite3_odbx_field_isnull( odbx_result_t* result, unsigned long pos )
-{
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "sqlite3_odbx_field_isnull() called" ); )
-
-	switch( sqlite3_column_type( (sqlite3_stmt*) result->generic, pos ) )
-	{
-		case SQLITE_NULL:
-			return 1;
-		case SQLITE_INTEGER:
-		case SQLITE_FLOAT:
-		case SQLITE_BLOB:
-		case SQLITE_TEXT:
-			return 0;
-		default:
-			return ODBX_ERR_BACKEND;
-	}
-}
-
-
-
 static unsigned long sqlite3_odbx_field_length( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "sqlite3_odbx_field_length() called" ); )
-
 	return (unsigned long) sqlite3_column_bytes( (sqlite3_stmt*) result->generic, pos );
 }
 
@@ -563,7 +503,5 @@ static unsigned long sqlite3_odbx_field_length( odbx_result_t* result, unsigned 
 
 static const char* sqlite3_odbx_field_value( odbx_result_t* result, unsigned long pos )
 {
-	DEBUGLOG( result->handle->log.write( &(result->handle->log), 1, "sqlite3_odbx_field_value() called" ); )
-
 	return (const char*) sqlite3_column_blob( (sqlite3_stmt*) result->generic, pos );
 }

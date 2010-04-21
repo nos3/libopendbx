@@ -36,10 +36,6 @@ extern "C" {
 
 
 
-#define ODBX_LIB_VERSION @LIBVERSION@
-
-
-
 /*
  *  Extended capabilities supported by the backends
  *  0x0000-0x00ff: Well known capabilities
@@ -96,13 +92,11 @@ enum odbxerr {
 #define ODBX_ERR_RESULT   ODBX_ERR_RESULT
 	ODBX_ERR_NOTSUP,
 #define ODBX_ERR_NOTSUP   ODBX_ERR_NOTSUP
-	ODBX_ERR_HANDLE,
+	ODBX_ERR_HANDLE
 #define ODBX_ERR_HANDLE   ODBX_ERR_HANDLE
-	ODBX_ERR_BUSY
-#define ODBX_ERR_BUSY   ODBX_ERR_BUSY
 };
 
-#define ODBX_MAX_ERRNO   0x0e
+#define ODBX_MAX_ERRNO   0x0d
 
 
 
@@ -297,8 +291,6 @@ unsigned long odbx_column_count( odbx_result_t* result );
 const char* odbx_column_name( odbx_result_t* result, unsigned long pos );
 
 int odbx_column_type( odbx_result_t* result, unsigned long pos );
-
-int odbx_field_isnull( odbx_result_t* result, unsigned long pos );
 
 unsigned long odbx_field_length( odbx_result_t* result, unsigned long pos );
 
