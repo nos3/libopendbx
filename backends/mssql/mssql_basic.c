@@ -29,6 +29,7 @@ struct odbx_basic_ops mssql_odbx_basic_ops = {
 	.set_option = mssql_odbx_set_option,
 	.error = mssql_odbx_error,
 	.error_type = mssql_odbx_error_type,
+	.error_native = mssql_odbx_error_native,
 	.escape = mssql_odbx_escape,
 	.query = mssql_odbx_query,
 	.result = mssql_odbx_result,
@@ -91,6 +92,7 @@ static int mssql_odbx_init( odbx_t* handle, const char* host, const char* port )
 
 	tc->msg = 0;
 	tc->errtype = 0;
+	tc->errnative = 0;
 	tc->firstresult = 0;
 
 	len = strlen( host ) + 1;
@@ -281,6 +283,14 @@ static int mssql_odbx_error_type( odbx_t* handle )
 }
 
 
+static int mssql_odbx_error_native(odbx_t* handle)
+{
+    if (handle->aux != NULL) {
+        return ((struct tdsconn*) handle->aux)->errnative;
+    }
+
+    return -1;
+}
 
 static int mssql_odbx_escape( odbx_t* handle, const char* from, unsigned long fromlen, char* to, unsigned long* tolen )
 {
@@ -821,6 +831,14 @@ static int mssql_err_handler( DBPROCESS* dbproc, int severity, int dberr, int os
 	tc->errtype = 1;
 	if( severity > 16 ) { tc->errtype = -1; }
 
+    if (dberr != 20018) {
+
+        // dberr = 20018, dberrstr = General SQL Server error: Check messages from the SQL Server.
+        // If we get this code, the real error code should be set already.
+
+        tc->errnative = dberr;
+    }
+
 	return INT_CANCEL;
 }
 
@@ -850,6 +868,7 @@ static int mssql_msg_handler( DBPROCESS* dbproc, DBINT num, int state, int lvl, 
 		snprintf( tc->errmsg + len, MSSQL_MSGLEN - len, " %s", dberrstr );
 	}
 
+	tc->errnative = num;
 	tc->msg = 1;
 	return 0;
 }

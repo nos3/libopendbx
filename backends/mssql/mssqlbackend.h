@@ -46,6 +46,7 @@ struct tdsconn
 	char errmsg[MSSQL_MSGLEN];
 	int msg;
 	int errtype;
+	int errnative;
 	int firstresult;
 	char* host;
 	LOGINREC* login;

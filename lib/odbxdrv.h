@@ -106,6 +106,7 @@ struct odbx_basic_ops
 	int (*set_option) ( odbx_t* handle, unsigned int option, void* value );
 	const char* (*error) ( odbx_t* handle );
 	int (*error_type) ( odbx_t* handle );
+	int (*error_native) ( odbx_t* handle );
 	int (*escape) ( odbx_t* handle, const char* from, unsigned long fromlen, char* to, unsigned long* tolen );
 	int (*query) ( odbx_t* handle, const char* query, unsigned long length );
 	int (*result) ( odbx_t* handle, odbx_result_t** result, struct timeval* timeout, unsigned long chunk );

@@ -29,6 +29,7 @@ struct odbx_basic_ops mysql_odbx_basic_ops = {
 	.set_option = mysql_odbx_set_option,
 	.error = mysql_odbx_error,
 	.error_type = mysql_odbx_error_type,
+	.error_native = mysql_odbx_error_native,
 	.escape = mysql_odbx_escape,
 	.query = mysql_odbx_query,
 	.result = mysql_odbx_result,
@@ -402,6 +403,13 @@ static int mysql_odbx_error_type( odbx_t* handle )
 	return -1;
 }
 
+
+static int mysql_odbx_error_native( odbx_t* handle )
+{
+	unsigned int errno = mysql_errno( (MYSQL*) handle->generic );
+
+	return errno;
+}
 
 
 static int mysql_odbx_escape( odbx_t* handle, const char* from, unsigned long fromlen, char* to, unsigned long* tolen )

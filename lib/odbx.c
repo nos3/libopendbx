@@ -311,6 +311,19 @@ int odbx_error_type( odbx_t* handle, int error )
 }
 
 
+int odbx_error_native( odbx_t* handle, int errno )
+{
+	if( errno == -ODBX_ERR_BACKEND )
+	{
+		if( handle != NULL && handle->ops != NULL && handle->ops->basic != NULL && handle->ops->basic->error_type != NULL )
+		{
+			return handle->ops->basic->error_native( handle );
+		}
+	}
+
+	return 0;
+}
+
 
 int odbx_escape( odbx_t* handle, const char* from, unsigned long fromlen, char* to, unsigned long* tolen )
 {

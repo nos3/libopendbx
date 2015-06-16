@@ -37,6 +37,8 @@ static const char* mysql_odbx_error( odbx_t* handle );
 
 static int mysql_odbx_error_type( odbx_t* handle );
 
+static int mysql_odbx_error_native( odbx_t* handle );
+
 static int mysql_odbx_escape( odbx_t* handle, const char* from, unsigned long fromlen, char* to, unsigned long* tolen );
 
 static int mysql_odbx_query( odbx_t* handle, const char* query, unsigned long length );
